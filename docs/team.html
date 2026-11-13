@@ -1,25 +1,451 @@
 <!DOCTYPE html>
-<html lang="zh"><head>
+<html lang="zh">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta http-equiv="refresh" content="60">
-<title>爆款雷达 · 还在加载</title>
+<title>工作台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-       background:#0a0d13;color:#e8e8ea;text-align:center;padding:24px;
-       font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
-  .spin{width:34px;height:34px;margin:0 auto 26px;border:3px solid #2a2f3a;
-        border-top-color:#ff785a;border-radius:50%;animation:s 1s linear infinite}
-  @keyframes s{to{transform:rotate(360deg)}}
-  h1{font-size:23px;margin:0 0 14px;font-weight:600}
-  p{margin:8px 0;color:#9a9aa2;font-size:15px;line-height:1.75}
-  .hint{margin-top:30px;font-size:13.5px;color:#6e6e78}
-  @media(prefers-reduced-motion:reduce){.spin{animation:none}}
-</style></head><body><div>
-  <div class="spin"></div>
-  <h1>你的页面还在加载中,请稍等</h1>
-  <p>第一次大约需要 20-60 分钟。</p>
-  <p>这一页会自己刷新,你可以先去忙别的。</p>
-  <p class="hint">等很久都没变?回到安装 SOP 第 7 步,<br>到仓库的 Actions 看 Sync Content 有没有跑完。</p>
-</div></body></html>
+  :root {
+    --bg:#0a0d13; --card:#11151d; --card-hi:#151a24; --border:#1d2430; --border-hi:#2c3546;
+    --text:#e8ecf3; --muted:#8a94a6; --faint:#5b6577; --accent:#5ea1ff; --green:#3fd68f;
+    --orange:#f0a33f; --pink:#ff6b9d; --red:#ff5c5c; --fire1:#ff8a3d; --fire2:#ff4d6d;
+    --font:'Inter',-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    --disp:'Space Grotesk','Inter','PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font); -webkit-font-smoothing:antialiased; }
+  ::selection { background:rgba(94,161,255,.3); }
+  ::-webkit-scrollbar { width:10px; } ::-webkit-scrollbar-thumb { background:#232c3b; border-radius:8px; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:6px; }
+  .ic { width:14px; height:14px; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; flex:none; }
+
+  header { position:sticky; top:0; z-index:50; background:rgba(10,13,19,.86);
+    backdrop-filter:blur(14px); border-bottom:1px solid var(--border); padding:13px 20px; }
+  .hrow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; max-width:1200px; margin:0 auto; }
+  .brand { display:flex; align-items:center; gap:10px; margin-right:auto; }
+  .mark { width:31px; height:31px; border-radius:9px; display:grid; place-items:center;
+    background:linear-gradient(135deg,var(--fire1),var(--fire2)); box-shadow:0 4px 16px rgba(255,92,80,.35); }
+  .mark .ic { width:17px; height:17px; color:#fff; }
+  h1 { font-family:var(--disp); font-size:16.5px; font-weight:700; line-height:1.15; }
+  h1 small { display:block; color:var(--faint); font-family:var(--font); font-weight:400; font-size:10.5px; }
+  .me { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); cursor:pointer;
+    background:var(--card); border:1px solid var(--border); border-radius:10px; padding:7px 12px;
+    transition:border-color .18s; }
+  .me:hover { border-color:var(--border-hi); }
+  .me b { color:var(--text); }
+
+  nav { display:flex; gap:7px; max-width:1200px; margin:12px auto 0; flex-wrap:wrap; }
+  .ntab { display:inline-flex; align-items:center; gap:7px; background:var(--card);
+    border:1px solid var(--border); border-radius:999px; padding:7px 16px; font-size:13.5px;
+    color:var(--muted); cursor:pointer; user-select:none; transition:all .18s; }
+  .ntab:hover { border-color:var(--border-hi); color:var(--text); }
+  .ntab.on { color:var(--text); background:linear-gradient(135deg,rgba(255,138,61,.15),rgba(255,77,109,.15));
+    border-color:rgba(255,120,90,.45); }
+
+  main { max-width:1200px; margin:22px auto; padding:0 20px; }
+  .page { display:none; } .page.on { display:block; }
+
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+  .stat { flex:1; min-width:130px; background:var(--card); border:1px solid var(--border);
+    border-radius:14px; padding:14px 16px; }
+  .stat .v { font-family:var(--disp); font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .stat .l { color:var(--faint); font-size:12px; margin-top:2px; }
+  .stat.sh .v { color:var(--orange); } .stat.dn .v { color:var(--green); } .stat.pd .v { color:var(--accent); }
+
+  section { background:var(--card); border:1px solid var(--border); border-radius:16px;
+    padding:16px 18px; margin-bottom:16px; }
+  section h2 { font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+  section h2 .ic { color:var(--orange); }
+  section h2 small { color:var(--faint); font-weight:400; font-size:11.5px; margin-left:auto; }
+  .row { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--border);
+    font-size:13px; flex-wrap:wrap; }
+  .row .hookline { flex:1; min-width:200px; color:var(--text); overflow:hidden; text-overflow:ellipsis;
+    white-space:nowrap; }
+  .row .hookline small { color:var(--faint); display:block; font-size:11px; margin-top:1px; }
+  .row .who2 { color:var(--accent); text-decoration:none; font-weight:600; font-size:12px; white-space:nowrap; }
+  .xb { font-family:var(--disp); font-weight:600; font-size:11px; color:var(--orange);
+    border:1px solid rgba(240,163,63,.4); background:rgba(240,163,63,.07); border-radius:99px;
+    padding:2px 8px; white-space:nowrap; }
+  .pill { display:inline-flex; align-items:center; gap:4px; background:#0c0f16; color:var(--muted);
+    border:1px solid var(--border); border-radius:9px; padding:5.5px 10px; font-size:11.5px;
+    cursor:pointer; text-decoration:none; font-family:var(--font); transition:all .18s; white-space:nowrap; }
+  .pill .ic { width:11px; height:11px; }
+  .pill:hover { color:var(--accent); border-color:rgba(94,161,255,.5); }
+  .pill.ok:hover { color:var(--green); border-color:rgba(63,214,143,.5); }
+  .pill.bad:hover { color:var(--red); border-color:rgba(255,92,92,.5); }
+  .none { color:var(--faint); font-size:13px; padding:14px 0 6px; }
+
+  .act { display:flex; gap:9px; padding:7px 0; border-top:1px solid var(--border);
+    font-size:12.5px; color:var(--muted); }
+  .act time { color:var(--faint); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .act b { color:var(--text); font-weight:600; }
+  .act .to { color:var(--orange); }
+
+  #radarWrap { height:calc(100vh - 150px); min-height:500px; border:1px solid var(--border);
+    border-radius:16px; overflow:hidden; }
+  #radarWrap iframe { width:100%; height:100%; border:0; }
+
+  .sop { max-width:820px; }
+  .sop h3 { font-size:15px; margin:22px 0 10px; display:flex; gap:8px; align-items:center; }
+  .sop h3 .ic { color:var(--orange); }
+  .sop ol { margin:0 0 8px 22px; color:var(--muted); font-size:13.5px; line-height:1.9; }
+  .sop ol b { color:var(--text); }
+  .sop p { color:var(--muted); font-size:13px; line-height:1.7; margin-bottom:6px; }
+  .sop table { border-collapse:collapse; font-size:13px; margin:8px 0; }
+  .sop td, .sop th { border:1px solid var(--border); padding:7px 14px; color:var(--muted); }
+  .sop th { color:var(--text); background:var(--card-hi); }
+
+  #mission { border:1px solid rgba(255,120,90,.35); border-radius:16px; padding:15px 18px;
+    margin-bottom:14px; background:linear-gradient(135deg,rgba(255,138,61,.10),rgba(255,77,109,.10)); }
+  #mission .mt { font-weight:600; font-size:14px; display:flex; gap:8px; align-items:center; }
+  #mission .mt .ic { color:var(--orange); }
+  #mission .md { color:var(--muted); font-size:12.5px; margin-top:5px; line-height:1.6; }
+  #mission .md b { color:var(--text); font-family:var(--disp); }
+  #overlay { position:fixed; inset:0; background:rgba(6,8,12,.88); backdrop-filter:blur(6px);
+    z-index:200; display:none; place-items:center; }
+  #overlay.show { display:grid; }
+  .obox { background:var(--card); border:1px solid var(--border-hi); border-radius:18px;
+    padding:28px 30px; width:min(92vw,380px); }
+  .obox h2 { font-family:var(--disp); font-size:18px; margin-bottom:6px; }
+  .obox p { color:var(--muted); font-size:13px; margin-bottom:16px; }
+  .obox input, .obox select { width:100%; background:#0c0f16; color:var(--text);
+    border:1px solid var(--border); border-radius:10px; padding:10px 13px; font-size:14px;
+    font-family:var(--font); margin-bottom:11px; }
+  .obox input:focus, .obox select:focus { border-color:var(--accent); outline:none; }
+  .obox button { width:100%; background:linear-gradient(135deg,var(--fire1),var(--fire2));
+    color:#fff; border:0; border-radius:10px; padding:11px; font-size:14px; font-weight:600;
+    font-family:var(--font); cursor:pointer; }
+  .obox button:active { transform:scale(.98); }
+
+  #toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(8px);
+    background:var(--card-hi); border:1px solid var(--border-hi); border-radius:11px;
+    padding:11px 20px; font-size:13px; display:none; z-index:300; opacity:0;
+    box-shadow:0 12px 32px rgba(0,0,0,.5); transition:opacity .2s, transform .2s; }
+  #toast.show { display:block; opacity:1; transform:translateX(-50%) translateY(0); }
+  @media (prefers-reduced-motion: reduce) { * { animation:none!important; transition:none!important; } }
+</style>
+</head>
+<body>
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><path d="m10 8 6 4-6 4Z"/><rect x="2" y="4" width="20" height="16" rx="3"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76A6 6 0 1 0 8.23 16.67"/><path d="M12 18h.01"/><path d="M17.99 11.66A6 6 0 0 1 15.77 16.67"/><circle cx="12" cy="12" r="2"/><path d="m13.41 10.59 5.66-5.66"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+</svg>
+<header>
+  <div class="hrow">
+    <div class="brand">
+      <div class="mark"><svg class="ic"><use href="#i-flame"/></svg></div>
+      <h1>工作台<small id="updated"></small></h1>
+    </div>
+    <div class="me" id="meBtn" title="点击修改身份">
+      <svg class="ic"><use href="#i-user"/></svg><span id="meLabel">未登记</span>
+    </div>
+  </div>
+  <nav>
+    <div class="ntab on" data-p="work"><svg class="ic"><use href="#i-clock"/></svg>今日工作</div>
+    <div class="ntab" data-p="radar"><svg class="ic"><use href="#i-radar"/></svg>爆款雷达</div>
+    <div class="ntab" data-p="sop"><svg class="ic"><use href="#i-book"/></svg>SOP</div>
+  </nav>
+</header>
+<main>
+  <div class="page on" id="p-work">
+    <div id="mission"></div>
+    <div class="stats">
+      <div class="stat pd"><div class="v" id="stPending">–</div><div class="l">未处理(待挑选)</div></div>
+      <div class="stat sh"><div class="v" id="stShoot">–</div><div class="l">拍摄中</div></div>
+      <div class="stat dn"><div class="v" id="stDone">–</div><div class="l">已处理</div></div>
+    </div>
+    <section id="secShoot">
+      <h2><svg class="ic"><use href="#i-video"/></svg>拍摄中队列<small>做完一条,点「完成」</small></h2>
+      <div id="shootList"></div>
+    </section>
+    <section id="secPick">
+      <h2><svg class="ic"><use href="#i-flame"/></svg>本周待挑选爆款 Top 8<small>看中就点「选中拍摄」,细看去爆款雷达</small></h2>
+      <div id="pickList"></div>
+    </section>
+  </div>
+  <div class="page" id="p-radar"><div id="radarWrap"></div></div>
+  <div class="page sop" id="p-sop">
+    <section>
+      <h3><svg class="ic"><use href="#i-flame"/></svg>SOP-01 · Marketer 每周选题流程(周一,约30分钟)</h3>
+      <ol>
+        <li>打开<b>爆款雷达</b>,点快筛「<b>真爆款 ×2+</b>」+「<b>近7天</b>」</li>
+        <li>看「爆款热词」确认本周主题方向(热词越多的主题越优先)</li>
+        <li>挑 <b>3–5 条</b>适合改编的。标准:话题跟我们相关 / Hook 可复制 / 我们拍得出来</li>
+        <li>每条点「<b>Brief</b>」复制 → 发到拍摄群</li>
+        <li>把选中的卡片<b>拖到「拍摄中」</b></li>
+        <li>明显不适合的拖「跳过」,保持未处理越少越好</li>
+      </ol>
+    </section>
+    <section>
+      <h3><svg class="ic"><use href="#i-video"/></svg>SOP-02 · Content Creator 拍摄改编流程(每条 ≤1天)</h3>
+      <ol>
+        <li>打开工作台「<b>今日工作</b>」,看拍摄中队列,从最旧的开始</li>
+        <li>打开原帖看 <b>3 遍</b>:第1遍看整体 / 第2遍拆 Hook(前3秒为什么让人停下) / 第3遍记结构(几个镜头、什么节奏)</li>
+        <li><b>改编不照抄</b>:换成我们的案例、口吻、行业。保留结构,替换内容</li>
+        <li>拍摄 → 剪辑。<b>前3秒必须有钩子</b>,字幕开头即出</li>
+        <li>发布后回到工作台,该条点「<b>完成</b>」</li>
+      </ol>
+    </section>
+    <section>
+      <h3><svg class="ic"><use href="#i-book"/></svg>SOP-03 · 状态定义(团队统一语言)</h3>
+      <table>
+        <tr><th>状态</th><th>意思</th><th>谁负责改</th></tr>
+        <tr><td>未处理</td><td>还没人筛选过</td><td>Marketer 每周清理</td></tr>
+        <tr><td>拍摄中</td><td>已选中,正在改编/拍摄/剪辑</td><td>Marketer 选中时拖入</td></tr>
+        <tr><td>已处理</td><td>已发布或已完成改编</td><td>Creator 完成时点</td></tr>
+        <tr><td>跳过</td><td>不适合我们,不再考虑</td><td>任何人</td></tr>
+      </table>
+    </section>
+    <section>
+      <h3><svg class="ic"><use href="#i-radar"/></svg>SOP-04 · 看到「引流」标签的帖子怎么学</h3>
+      <p>带「引流」标的帖子,重点<b>不是内容,是漏斗</b>。记录三件事:</p>
+      <ol>
+        <li>留言<b>关键词</b>是什么?(例:留言「Start」)</li>
+        <li>送的<b>诱饵</b>是什么?(模板 / 课程 / 清单)</li>
+        <li>之后导去<b>哪里</b>?(DM 自动回复 → 链接 → 报名页)</li>
+      </ol>
+      <p>好的打法直接抄结构,用我们的 GHL / ManyChat 实现。</p>
+    </section>
+    <section>
+      <h3><svg class="ic"><use href="#i-user"/></svg>SOP-05 · 竞对名单管理(发现好账号就加进来)</h3>
+      <ol>
+        <li>打开 Supabase「<b>competitors</b>」表,加一行</li>
+        <li><b>Username</b>:贴账号名或 IG <b>主页</b>链接都行(带 ?igsh= 参数没关系;不要贴帖子链接)</li>
+        <li><b>Tracker</b>:选 IG Competitors 或 AI Competitors</li>
+        <li><b>Active</b>:打勾✅ — <b>没勾不会抓</b></li>
+        <li>每周一自动生效;停止追踪 = 取消勾,不用删行</li>
+      </ol>
+      <p>加账号的标准:跟我们领域相关 / 内容有爆款相 / 值得学。发现雷达里某账号长期没爆款,把它 Active 取消,腾出额度换新的。</p>
+    </section>
+    <section>
+      <h3><svg class="ic"><use href="#i-user"/></svg>SOP-06 · 第一次设置 & 常见问题</h3>
+      <ol>
+        <li><b>登记身份:</b>第一次打开工作台会弹「你是谁」→ 输名字、选角色。这决定你看到的任务卡和排版</li>
+        <li><b>直接改状态:</b>雷达里把卡片拖到上方分类,或用卡片下拉选。看到绿色 ✓ 就成了。<b>不需要输任何密钥</b> —— 这套系统天生只允许改状态,改不了别的数据,所以安全无需登录</li>
+      </ol>
+      <p><b>常见问题:</b></p>
+      <table>
+        <tr><th>现象</th><th>原因</th><th>解决</th></tr>
+        <tr><td>改了状态没反应 / 报错</td><td>网络断了,或页面是旧版</td><td>刷新页面(Ctrl+Shift+R)再试</td></tr>
+        <tr><td>队友改的状态我看不到</td><td>页面最多 10 分钟同步一次</td><td>刷新页面即可;自己的改动是即时的</td></tr>
+        <tr><td>网页打不开 / 数据是空的</td><td>每周自动更新那天可能还在跑</td><td>等 1 小时后再开;还不行找老板看 GitHub Actions</td></tr>
+      </table>
+      <p>状态存在云端(Supabase),换电脑、关机都不会丢,全团队实时共享。</p>
+    </section>
+  </div>
+</main>
+<div id="overlay"><div class="obox">
+  <h2>👋 你是谁?</h2>
+  <p>登记一次,方便团队知道是谁在操作。</p>
+  <input id="oName" placeholder="你的名字" maxlength="20">
+  <select id="oRole">
+    <option value="Marketer">Marketer(选题/投放)</option>
+    <option value="Content Creator">Content Creator(拍摄/剪辑)</option>
+    <option value="Boss">Boss</option>
+  </select>
+  <button id="oSave">进入工作台</button>
+</div></div>
+<div id="toast"></div>
+<script id="data" type="application/json">[{"id": "Dfn_gF9PCAe", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "学英文的人看这里！！！\n\n━━━━━━━━━━━━━━━━\n BT DOT COM TECHNOLOGY\nYour One-Stop IT Solution\n您的科技需求，BT 一站式搞定！\n Computer Sales & Repair\n POS System | AutoCount | Feedme | HRMS\n CCTV | Smart Home | Networking\n Visit Us｜欢迎光临\nNo. 139A, Jalan Lambak,\n86000 Kluang, Johor.\n WhatsApp：017-753 2167\n Tel：07-771 2167\n www.btcom.my\n Business Hours｜营业时间\nMon – Sat：10:00 AM – 6:30 PM\nSunday：Closed｜星期日休息\n BT DOT COM — Your One-Stop IT Solution.\n不只是卖科技产品，更是您值得信赖的 IT 伙伴。\n#BTDotCom #BTDotComTechnology #KluangIT #ComputerShop #ITSupport", "transcript": "有趣的网站推荐学英文的看这里初中到高中等级的英文都有就像字典一样无聊的话用游戏学英文也可以重点是前面背记得点赞关注", "brk": "Hook类型: 痛点直击\n结构: 痛点引入 → 资源推荐 → 互动转化\n为什么火: 精准切中学生群体提升英文的学习需求，推荐实用免费工具且门槛低。\n改编角度: 盘点提升居家安全的免费黑科技APP或CCTV实用功能，直击业主痛点。", "my": "厂区晚上 CCTV 看不清，很多老板第一反应就是整套换掉。\n\n觉得一定要花大钱换最高级的 camera，或者把所有线路重新拉过，才能解决画面模糊的问题。\n\n其实真的不用马上换新的，很多时候只是因为镜头长年累月积灰尘，或者夜间补光灯的角度没有调好。\n\n我们今天讲三个平时在工厂做 site 时常看的重点，你跟着看一次就能懂。\n\n第一步，检查镜头表面。\n油棕厂或者工厂外面灰尘油烟多，CCTV 镜头前面有一层雾气，晚上打灯时就会反光一片白。\n你只要拿干净的布轻轻擦一下，或者叫师傅上门帮你看一下，画面马上就清爽很多。\n\n第二步，看夜间红外线和补光灯。\n很多时候不是 camera 坏，是周边的灯光被货柜或者新起好的架子挡住。\n只要稍微调整一下安装的角度，避开盲区，晚上照出来的范围就完全不一样了。\n\n第三步，检查录像机和硬盘。\n有些厂用久了，录像机里面的硬盘容量满了或者在发热，导致回放的时候卡顿甚至黑屏。\n定期做个检查清理，或者换个适合工业环境的硬盘，系统才能稳稳跑完二十四小时。\n\n以前很多老板遇到晚上黑麻麻看不清，就直接花冤枉钱买整套新的。\n现在知道先检查这几个地方，不仅省时间，也避免换了新设备还是遇到同样的问题。\n\n有什么不确定的，直接 WhatsApp 我们，安排时间过来看 site。", "tags": "BTDotCom, BTDotComTechnology, KluangIT, ComputerShop, ITSupport", "bait": false, "type": "Video", "likes": 259, "comments": 0, "er": 43.24, "followers": 599, "date": "2026-11-12", "url": "https://www.instagram.com/p/Dfn_gF9PCAe/", "video": true, "ratio": 0, "score": 43.24, "status": "未处理", "x": 9.4}, {"id": "DfQ2RRfvyQK", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "一日一个键盘小知识 006\n\n━━━━━━━━━━━━━━━━\n💙 BT DOT COM TECHNOLOGY\nYour One-Stop IT Solution\n您的科技需求，BT 一站式搞定！\n🖥️ Computer Sales & Repair\n🧾 POS System | AutoCount | Feedme | HRMS\n📹 CCTV | Smart Home | Networking\n📍 Visit Us｜欢迎光临\nNo. 139A, Jalan Lambak,\n86000 Kluang, Johor.\n📲 WhatsApp：017-753 2167\n☎️ Tel：07-771 2167\n🌐 www.btcom.my\n🕙 Business Hours｜营业时间\nMon – Sat：10:00 AM – 6:30 PM\nSunday：Closed｜星期日休息\n💙 BT DOT COM — Your One-Stop IT Solution.\n不只是卖科技产品，更是您值得信赖的 IT 伙伴。\n#BTDotCom #BTDotComTechnology #KluangIT #ComputerShop #ITSupport", "transcript": "一日一个 键盘小知识 进盘的隐藏功能Window然后加低一秒缩小所有窗口回到桌面Window加Shift然后加T瞬间飞步被雾删的重要页面鼠标放在任务栏的音量图标上面就可以用鼠标控制音量大小Window然后加低就可以查看复制过的内容记得点赞关注", "brk": "Hook类型: 实用技能/效率提升\n结构: 引入主题 → 连续干货教学 → 引导关注\n为什么火: 零门槛实用技巧快速解决痛点，观众易顺手点赞收藏\n改编角度: 分享CCTV或Autogate日常使用小贴士，如手机远程回放监控的隐藏快捷操作", "my": "厂区晚上 CCTV 画面一片模糊？\n很多老板以为，是不是 camera 坏了，或者是镜头太脏。\n其实不一定是要整套换掉，有时候只是位置、灯光或线路出了状况。\n我们看下第一点，检查 camera 的安装位置。\n有时候角度没有对准重点区域，或者被树枝挡住，画面看起来就会有问题。\n调整一下角度或者修剪一下树枝，不用花冤枉钱。\n我们看下第二点，检查夜间的灯光情况。\n如果现场太暗，红外线不够，画面就会看不清。\n加个适合的补光灯，或者是换个有白光夜视功能的，问题就解决了。\n我们看下第三点，检查接头和电线。\n时间久了，下雨受潮或者老鼠咬到，都会影响信号传输。\n我们技师过去测试一下线路，换掉受损的线，画面马上就清爽了。\n以前很多老板遇到 CCTV 有问题，就直接叫人全部换掉，花了很多冤枉钱。\n现在只要先检查这几个地方，就能清楚知道是哪里坏了。\n有什么关于安防的问题，直接 WhatsApp 我们，安排时间过去看 site。", "tags": "BTDotCom, BTDotComTechnology, KluangIT, ComputerShop, ITSupport", "bait": false, "type": "Video", "likes": 166, "comments": 0, "er": 27.71, "followers": 599, "date": "2026-11-03", "url": "https://www.instagram.com/p/DfQ2RRfvyQK/", "video": true, "ratio": 0, "score": 27.71, "status": "未处理", "x": 6.0}, {"id": "DdStECgp3ZA", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "诊所还在靠员工大声喊号码？📢\n\n我们为客户设置了一套更方便的诊所呼叫系统：\n\n✅ 手机一按，自动呼叫下一位\n✅ 大屏幕即时显示号码与诊室\n✅ 支持多位医生、多个诊室\n✅ 可打印排队号码纸\n✅ 减少前台工作，让候诊流程更顺畅\n\n无论是诊所、牙科、兽医诊所或其他需要排队叫号的场所，都可以根据实际需求进行设置。\n\n想让顾客排队更有秩序，也让员工操作更轻松？\n\n📍 BT DOT COM TECHNOLOGY｜居銮\n📞 017-753 2167\n💬 欢迎私讯我们了解适合你的呼叫系统", "transcript": "按触指Next 它会喊105.2号指张音号解释没有 又是我这个呢给证所的人用OK就可以给医生这个放在高德你高德 顾客来看来什么病可能一个是看手的一个是看脚的看手的去一看脚的去二一我按触指这个触的值你拿着看102 看手一个就给那个顾客如果医生要叫这个102 按Next它会喊105.2号指张音号解释你就可以进去如果也是证所2非常同一架手机高德1把它换成高德2然后来到证所2Next105.2号指张音号解释OK当然你两个医生吗如果你有两台手机陈医生 黄医生一人一台手机你一个高德1一个高德2解释用快点上去简单这个萤幕看到吗这么大个萤幕放两台号码浪费那个萤幕旁边那个地方我放一个广告在上面好吗OKOK", "brk": "Hook类型: 痛点直击\n结构: 痛点引入 → 实机演示 → 多场景应用 → 行动呼叫\n为什么火: 精准切中传统诊所排队混乱、前台效率低的痛点，演示直观易懂\n改编角度: 演示CCTV或Autogate如何远程一键掌控，突出为店面或住宅省时省力的便捷性", "my": "厂区晚上 CCTV 看不清？不一定是 camera 坏了，很多时候是位置、灯光或线路的问题。\n\n很多人以为，画面看不清楚，就是整套系统要全部拆掉重装，或者要花大钱升级。\n\n其实很多时候，不是设备不行，而是没有根据现场环境来调整，或者线路老化导致信号不好。\n\n第一步，先检查 camera 的安装位置。有些地方有死角，或者被树枝和招牌挡住，调整一下角度，画面马上就差很多。\n\n第二步，看晚上的补光够不够。如果厂区太暗，普通的 CCTV 看不清楚，我们要加装适合的灯光，或者换成有夜视功能的型号。\n\n第三步，检查线路和录像机。如果是拉线的问题或者硬盘快满，画面就会卡或者糊，找我们过来排查一下就知道了。\n\n以前有个油棕厂的老板，厂里晚上黑漆漆的，CCTV 完全看不到人影，以为要花大钱把整套系统换掉。\n\n我们过去看 site 之后，帮他重新拉线和调整 camera 的位置，不用换新设备，问题就解决了。\n\n以前厂里一到晚上就担心看不清，整天要去看现场很麻烦。\n\n现在只要装好系统，晚上在手机直接看，清清楚楚，省心很多。\n\n有什么想问的随时讲哦，WhatsApp 我们，安排看现场。", "tags": "", "bait": false, "type": "Video", "likes": 48, "comments": 0, "er": 8.01, "followers": 599, "date": "2026-09-15", "url": "https://www.instagram.com/p/DdStECgp3ZA/", "video": true, "ratio": 0, "score": 8.01, "status": "未处理", "x": 1.7}, {"id": "DeBFRMlJN4g", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "居銮it公司跟网吧有什么关系？🧐", "transcript": "所以就给我玩一渐我们玩渐可以们讲现在我们公司老板讲放一台Gaming寄在这边给所有来我们店的朋友如果你今天想要我们想要试下主机渐渐打起来怎么样就可以来这边Try虽然讲我们是有服务中小企业可是毕竟我们是IT公司嘛我们也是会有服务很多的像我们要打Games我们要读书买电脑我们这边其实都会找给你们我们电话号码在这里有需要马上点赞我们这里是集合的bt.com让你的声音不再让手写单过囤专目更清晰的IT公司", "brk": "Hook类型: 身份共鸣\n结构: 疑问引发好奇 → 展示免费福利 → 呼吁点赞留资\n为什么火: 打破IT公司刻板印象，用免费Gaming PC吸引目标客群。\n改编角度: 拍摄门店展出CCTV或Autogate实机，让客户现场体验智能安防操作。", "my": "厂区晚上 CCTV 画面一片模糊？\n\n很多老板以为，一定是 camera 坏了或者要全部换掉，花大钱重新拉线。\n\n其实根本不用。很多时候只是位置不对、镜头脏了，或者是线路受潮的小问题。\n\n我们平时去居銮和永平的厂看 site 的时候，经常遇到这种状况。\n\n第一步，先检查 CCTV 的角度和供电。看看是不是厂房扩建后被柱子挡住，或者雨季时雨水影响了镜头。\n\n第二步，看录像机和硬盘有没有老化。很多时候画面卡顿不是 camera 的问题，是硬盘满月没覆盖，或者电箱里的供应不稳定。\n\n第三步，测试夜视的红外线。如果是灯光不够，我们在适当位置加个辅助灯或者调整角度，晚上就能看得清清楚楚。\n\n以前老板们遇到厂里少拍到一个死角，就直接买新的整套装上去，花冤枉钱。\n\n现在我们先过来看 site，再跟你讲是要修、要换，还是调一下就好，帮你省下不必要的开销。\n\n有需要看现场的老板，直接 WhatsApp 我们，安排时间过去看一下。", "tags": "", "bait": false, "type": "Video", "likes": 19, "comments": 3, "er": 3.67, "followers": 599, "date": "2026-10-03", "url": "https://www.instagram.com/p/DeBFRMlJN4g/", "video": true, "ratio": 0, "score": 4.67, "status": "未处理", "x": 1.0}, {"id": "De87E-JPfmv", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "📹 一台 CCTV，价格竟然抵得上一台电脑？！😱💸\n\n到底是贵得离谱，还是强得有道理？🤔\n\n🔥 今天就来看看 TP-Link VIGI InSight PTZ5425 到底有什么真本事！\n\n看完你再来评评理！👀\n\n━━━━━━━━━━━━━━━━\n💙 BT DOT COM TECHNOLOGY\nYour One-Stop IT Solution\n您的科技需求，BT 一站式搞定！\n🖥️ Computer Sales & Repair\n🧾 POS System | AutoCount | Feedme | HRMS\n📹 CCTV | Smart Home | Networking\n📍 Visit Us｜欢迎光临\nNo. 139A, Jalan Lambak,\n86000 Kluang, Johor.\n📲 WhatsApp：017-753 2167\n☎️ Tel：07-771 2167\n🌐 www.btcom.my\n🕙 Business Hours｜营业时间\nMon – Sat：10:00 AM – 6:30 PM\nSunday：Closed｜星期日休息\n💙 BT DOT COM — Your One-Stop IT Solution.\n不只是卖科技产品，更是您值得信赖的 IT 伙伴。\n#BTDotCom #BTDotComTechnology #KluangIT #ComputerShop #ITSupport", "transcript": "你敢相信嗎?一粒CCTV等於一台電腦的價格為什麼這裡CCTV那麼貴?沒錯!你看它不是普通的CCTV25FETER OPTIGUS Zoom遠遠的東西都能看得到清清楚楚而不是Digital Zoom360度旋轉自動追蹤人晚上還可以拍彩色所有的東西在夜間照得到清清楚楚都跟很像啊這個景觀是有誰用啊?適合Shopping Mall大樓位號工廠大型卡巴都適合還有還有抽家很多的人講真的啦這種CCTV呢就是適合那種需要大範圍的公司如果你們想了解更多歡迎來居然PT.com有One Stock IG Solution找反兩我吧", "brk": "Hook类型: 痛点直击与价格反差\n结构: 抛出天价疑问 → 25倍光学变焦与夜视功能展示 → 适用大场所定位与导流\n为什么火: 用“CCTV比电脑贵”制造认知反差，精准展示强悍功能消除价格疑虑\n改编角度: 突出高端CCTV或Autogate的高阶黑科技，用“一分钱一分货”打破便宜没好货迷思", "my": "厂区晚上 CCTV 连车牌都看不清，老板你是不是以为只能全部换掉？\n\n很多老板以为，画面不清楚就是镜头买便宜了，或者一定要花大钱换整套系统。\n\n其实很多时候，不是 camera 的问题，而是位置、角度或者焦段没有选对。\n\n第一，先看你的镜头焦段够不够。如果厂里范围很大，普通镜头拉近就全是马赛克，要用对适合大范围的型号。\n\n第二，看夜间灯光和环境。很多地方晚上黑漆漆一片，光靠 infrared 不够，要看现场是加装灯光还是调整角度。\n\n第三，检查线路和录像主机。有些时候不是 camera 坏了，是传输线路老化或者设置不对，白白浪费钱去换新的。\n\n以前厂里有死角，发生事情调不到画面，只能看着干着急；找人来看又怕被砍菜头，换了还是看不清。\n\n现在只要先找我们过来看 site，帮你检查清楚到底是哪里出问题，再跟你讲要修、要换还是不用动。\n\n有什么 CCTV 的问题，直接 WhatsApp 我们，安排时间过去看一下。", "tags": "BTDotCom, BTDotComTechnology, KluangIT, ComputerShop, ITSupport", "bait": false, "type": "Video", "likes": 27, "comments": 0, "er": 4.51, "followers": 599, "date": "2026-10-26", "url": "https://www.instagram.com/p/De87E-JPfmv/", "video": true, "ratio": 0, "score": 4.51, "status": "未处理", "x": 1.0}, {"id": "DeEaBvGpGMJ", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "when你公司是一家it一站式服务行业", "transcript": "", "brk": "", "my": "", "tags": "", "bait": false, "type": "Video", "likes": 26, "comments": 0, "er": 4.34, "followers": 599, "date": "2026-10-04", "url": "https://www.instagram.com/p/DeEaBvGpGMJ/", "video": true, "ratio": 0, "score": 4.34, "status": "未处理", "x": 0.9}, {"id": "Ddix7FmJ5Co", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "💻 电脑格式化到一半一直卡住，是硬盘坏了吗？\n\n这台电脑送来时，格式化过程反复卡住。我们先检查 SSD，再逐步排查其他硬件，最后发现问题出在主板。\n\n电脑卡住，不一定重装系统就能解决。先找出原因，才不会换错零件、花冤枉钱。\n\n📍电脑有类似问题？欢迎私讯 BT DOT COM，我们在居銮帮你检查。", "transcript": "他會把電話這樣造集這麼不可那樣電板有問題他跟他講solution我們在國內電腦的時候我會hanger所以我們先做檢測線確保是ASD還是NACRAM沒有問題的情況下我們才會推測是Modernboard或者是PoC測那我換核心ASD、RAM還是一樣就要整個板踩上來它是要換核心還是我們手裡面的NACRAM電板這樣也會把電腦都換掉嗎我們的專業來講肯定是不虧啦我們一定會確保這個電腦是完美沒有問題的時候會給顧客我們的粽子是這樣子的你就可以了", "brk": "Hook类型: 痛点直击\n结构: 提出故障现象 → 逐步排查过程 → 给出专业解决方案\n为什么火: 用真实维修场景建立专业信任，帮客户避坑省钱\n改编角度: 拍摄CCTV或Autogate卡顿失灵排查过程，强调精准检测不花冤枉钱", "my": "厂区晚上CCTV画面突然模糊或看不清，老板，你是不是以为直接换个新的camera就能搞定？\n\n很多人以为画面有问题，就是镜头坏了或者要整个系统重做。\n\n其实不一定，很多时候是位置、灯光，或者线路出了状况。\n\n第一步，先检查现场的CCTV线路和供电。我们过去看site时，不会一上来就叫你换贵的东西，先顺着线和电源查清楚，看是接口松脱还是供电不稳，确定问题出在哪里。\n\n第二步，检查录像机硬盘和设置。有时候画面卡或者没录到，问题不在camera，而是里面的硬盘满了或者设置跑掉。我们先帮你测试硬盘读写正不正常，能省下换新设备的钱就尽量帮老板省。\n\n第三步，看整体配置和覆盖范围。如果是暗角太多或者雨天反光，我们会建议调整角度或者补光，而不是盲目加装新设备。\n\n以前很多老板遇到厂里CCTV有问题，随便叫人来就直接叫你整套换掉，花了很多冤枉钱，结果问题还是没有解决。\n\n现在我们去到现场，一定先做检测，找出真正原因，跟你讲清楚要修、要换还是不用动，才出报价。\n\n厂里的CCTV或Auto Gate有问题？WhatsApp我们，安排时间过来帮你检查。", "tags": "", "bait": false, "type": "Video", "likes": 26, "comments": 0, "er": 4.34, "followers": 599, "date": "2026-09-21", "url": "https://www.instagram.com/p/Ddix7FmJ5Co/", "video": true, "ratio": 0, "score": 4.34, "status": "未处理", "x": 0.9}, {"id": "DfizHASvH4S", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "从 Cafe变办公室改造，不过BT顾客还是欢迎上来一面谈一面喝杯咖啡😉\n\n#btdotcom #kluang #YourOneStopITSolution #cafetooffice #showroomcafe", "transcript": "多功能板娘 這是在拆家嗎這個以前是我們的IT cafe嘛 已經荒廢了很久認識的人都知道我的毛之前是住在這裡的業務發展越來越大然後員工也投訴我們板娘啊 我的位置很小我沒有辦法做這麼多的工作所以我們決定把我們的Marketing部門移上來這個區域可以在定型改造長修等到時候我們做好了就是我們的Marketing department敬請期待", "brk": "Hook类型: 身份共鸣\n结构: 吐槽现状 → 宣布改造 → 展望未来\n为什么火: 用真实幽默的日常吐槽引发共鸣，展现公司扩张的实力\n改编角度: 拍CCTV或Autogate装太多导致公司不够位，搞笑展示升级ELV系统全过程", "my": "老板，厂里空间不够用，员工一直投诉位子太小，你是不是也在头痛要怎么改？\n\n很多人以为要扩建厂房或搬迁才能解决，觉得很麻烦又花钱。\n\n其实不用搬。很多时候是空间没有重新规划好。\n\n第一，把不常用的旧地方清理出来。像一些荒废的角落或旧仓库，先把杂物清走，看实际能用多大面积。这样不用租新地方，就能腾出空间。\n\n第二，重新划分部门位置。比如把办公室或 Marketing 移到楼上，或者把生产区和办公区隔开。这样员工做工时不会挤在一起，位子变大，做事也比较顺。\n\n第三，顺便检查那边的基础设备。空间改好了，顺便看一下 CCTV 的死角有没有变多、网线和电线要不要重新拉。一次过搞定，以后不用再麻烦。\n\n以前空间乱又挤，员工投诉位子小，找东西也麻烦。\n\n换了规划后，区域分得很清楚，员工做工舒服，效率也提高。\n\n有什么空间改动或安防设备的问题，直接 WhatsApp 我们，过来看 site 帮你想办法。", "tags": "btdotcom, kluang, YourOneStopITSolution, cafetooffice, showroomcafe", "bait": false, "type": "Video", "likes": 23, "comments": 0, "er": 3.84, "followers": 599, "date": "2026-11-10", "url": "https://www.instagram.com/p/DfizHASvH4S/", "video": true, "ratio": 0, "score": 3.84, "status": "未处理", "x": 0.8}, {"id": "DfGzhy4yDC1", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "edenrobot_official", "caption": "新来的06年…", "transcript": "你要站在这边做什么我已经跟你讲了嘛你手上要拿着Flyer然后谷歌来的时候啊你要分那个传单给他们你要跟他们笑吗你要笑哦 宝贝 我们的感情好像跳楼机突然升空 又落起啊跳楼机 爱跳楼机 爱跳楼机然后谷歌来到时候你要跟他讲嘛我们是任何个月都可以升级从传统变成智能电动门的我们有两款有线 无线全部都可以的你有听到吗你有听到吗15分钟就可以升级智能电动门哦小解翼 我喜欢吃小解翼 小解翼 小解翼小解翼 小解翼 小解翼", "brk": "Hook类型: 痛点直击结合反常识整活\n结构: 交代背景任务 → 疯狂洗脑推销 → 抛出核心卖点\n为什么火: 用职场整活和无厘头洗脑打破传统广告套路，自带娱乐属性\n改编角度: 借06年新员工发传单场景，搞笑推销15分钟升级Autogate或CCTV系统", "my": "老板，厂区门禁又卡住，罗里进不去，还要下去按按键开门？\n\n很多人以为电动门按坏了就要整套换掉，又要花大钱又要拆墙壁。\n\n其实很多时候不是门坏了，是里面的控制板或接收器出了问题，根本不用换整套。\n\n今天跟你讲三个不用换门也能升级智能电动门的方法，帮你省时间和力气。\n\n第一个，检查你的电动门系统。看看是滑轨卡住，还是遥控器信号不好。如果是遥控器问题，配个新频率或者换个接收器就好了，不需要整套拆掉重做。\n\n第二个，看你需要有线还是无线连接。我们有两款系统可以选，不管你是工厂大门还是厂房卷帘门，都可以直接接上。不用大兴土木，师傅过去看 site 后就会跟你讲最适合哪一种。\n\n第三个，了解升级成自动门或者 Access Control 的做法。我们从安装到售后都有做，不管是看 site、报价还是后续的维护，全部由我们公司负责。\n\n以前厂里电动门坏了，员工要跑上跑下开门，卡在门口浪费时间，老板又担心安全问题。\n\n现在直接换成智能电动门和 Access Control系统，进出不用下车，安全又方便。\n\n有什么问题或者想要了解 CCTV、电动门、Alarm 的老板，直接 WhatsApp 我们，我们安排时间过去看 site。", "tags": "", "bait": false, "type": "Video", "likes": 44, "comments": 0, "er": 0.72, "followers": 6125, "date": "2026-10-30", "url": "https://www.instagram.com/p/DfGzhy4yDC1/", "video": true, "ratio": 0, "score": 0.72, "status": "未处理", "x": 1.4}, {"id": "DdqnzCzDQXy", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "edenrobot_official", "caption": "很多人都搞不懂自己家的autogate 是不是这个型号？ 可不可以加app来控制电动门？\n#dcmoto #智能手机控制电动门 #电动门 #edenrobot", "transcript": "自從上次我們講975可以加手機控制後我們的後台被溫爆了啊我整理了最多人問的兩個問題975會怎樣加APP?我加的Model是不是975?ok 這影片一次跟我講清楚叫你講分辨認準一下這幾個牌子基本上都是用Wireless的款式不確定也沒關係再教你一個簡單的方法走 我們去看看你要Auto GameBox有沒有Done有Done的話基本上都是用我們Wireless的Module知道講分辨了走 現在帶你們去看夾安裝插Type-C第二步SmartLiveAPP右上角點擊Add device設備Reset按10秒進入配對模式第三步連接2.4G Wi-Fi點擊Done手機配對就完成了現在把你的遙控器配對給設備首先點擊Connection第二步拿原本遙控器放在殼上卡著左右鍵同時一起按住APP顯示Success就成功了看到嗎就這樣簡單夾過後不影響你原本的Remote也可以用手機遠程操控你可以邊看CCTV邊控制你的大門在夾Wireless的Sensor就可以找你們到底有沒有管如果不明白的話記得問我如果你有朋友也是這款Moto記得分享給他拜拜", "brk": "Hook类型: 痛点直击\n结构: 抛出疑问 → 辨认型号 → 实操演示 → 联动生态\n为什么火: 解决特定型号痛点，教程极具实用性且门槛低\n改编角度: 演示CCTV联动Autogate或手机远程开门全过程，吸纳同类车主", "my": "厂区大门或者住家电动门，到底能不能用手机开？\n\n很多人以为要换掉整套系统，或者要花大钱重新拉线，觉得很麻烦。\n\n其实不是这样的，很多时候只要加个配件就能搞定。\n\n第一步，检查你现有的电动门控制箱。看看里面有没有预留位置，或者直接看一下你现在的遥控器牌子和型号。如果看不懂也没关系，拍照发给我们看一下就知道了。\n\n第二步，确认可以用之后，我们上门帮你安装。师傅会把智能模块接好，插上线，整个过程不需要破坏你原本的门结构。\n\n第三步，在手机下载对应的 App，按照步骤连接 Wi-Fi，把你的遥控器信号配对进去。配对成功后，就算你不在家，也可以直接用手机开门。\n\n以前出门经常要找遥控器，或者家人回来没有手按，还要特地走出来开门。\n\n换成手机控制以后，坐在车里或者在外面，直接按一下手机就能开门，还可以配合 CCTV 顺便看是谁回来。\n\n有什么关于电动门或者 CCTV 的问题，WhatsApp 我们，安排时间过来看现场。", "tags": "dcmoto, 智能手机控制电动门, 电动门, edenrobot", "bait": false, "type": "Video", "likes": 28, "comments": 1, "er": 0.47, "followers": 6125, "date": "2026-09-24", "url": "https://www.instagram.com/p/DdqnzCzDQXy/", "video": true, "ratio": 0, "score": 0.51, "status": "未处理", "x": 1.0}, {"id": "De9TSUnEZzn", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "edenrobot_official", "caption": "Eden Robot 要办线下活动啦！ 🎉\n\n这次我们跟 ArmyGrade 一起参加 HOMEDEC KLCC！\n\n我们会在现场教大家，怎么把 autogate 改装成 App 控制。不用换 motor，原本的 remote 照样能用，整个过程都可以亲眼看到感受到 👀\n\n📍 KLCC，Hall 6\n🏠 Booth 6P074 – 6P077\n📅 10 月 29 日 – 11 月 1 日\n⏰ 早上 10 点 – 晚上 8 点\n\n✨ 只有 4 天，现场还有特别优惠\n📸 家里已经有 autogate 的，带你 gate 的照片来，我们帮你看适合哪一款\n\n留言「KLCC」，我们把 booth map 发给你！👇\n等你哦～\n\n#EdenRobot #ArmyGrade #HOMEDEC #HOMEDECKL #KLCC #SmartAutogate #智能大门 #AutogateMalaysia", "transcript": "啊啊一段落不落八仙下活动啦即将在Home Deck KLCC和Amiguray一起改装大门变成手机控制这四天的仙下活动还有特别优惠哦等你来哦", "brk": "Hook类型: 痛点直击+活动预告\n结构: 展会预告 → 现场改装演示 → 独家优惠呼吁\n为什么火: 击中旧Autogate用户想升级智能但又舍不得换motor的痛点。\n改编角度: 拍短视频展示如何不换motor直接把旧Autogate升级成App控制。", "my": "老板，你家里的电动门是不是每次下雨，都要淋湿跑去按遥控器？\n\n很多人以为，要换掉整套 motor 才能用手机开门，其实根本不用花冤枉钱。\n\n只要加一个小装置，原本的 remote 照样能用，手机直接就能开门关门。\n\n我们来看第一个方法，检查你家里的 autogate 是哪一种型号。\n\n不同牌子的主板接线有点不一样，找经验丰富的技师来看一下最稳阵。\n\n不需要拆掉原本的轨道，直接在现有系统上加装智能模组就可以。\n\n第二个方法，看家里有没有铺好线路或者 Wi-Fi 信号到门口。\n\n手机控制主要靠网络连接，信号稳不稳定决定了开门顺不顺。\n\n如果不确定信号够不够，我们可以帮你在现场测试一下。\n\n第三个方法，拍照给我们或者直接拿照片过来。\n\n只要拍下你家 autogate motor 的箱子里面，我们一看就知道能不能改。\n\n这样不用白跑一趟，也能省下不必要的检查费。\n\n以前很多老板以为换智能门很麻烦，要敲敲打打搞很久。\n\n现在只要装个配件，半天就能搞定，出门在外也能随时开门给送货的。\n\n有什么问题想了解的，直接 WhatsApp 我们，安排看现场。", "tags": "EdenRobot, ArmyGrade, HOMEDEC, HOMEDECKL, KLCC, SmartAutogate, 智能大门, AutogateMalaysia", "bait": true, "type": "Video", "likes": 22, "comments": 0, "er": 0.36, "followers": 6125, "date": "2026-10-26", "url": "https://www.instagram.com/p/De9TSUnEZzn/", "video": true, "ratio": 0, "score": 0.36, "status": "未处理", "x": 0.7}]</script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const SUPA = 'https://ihhcwbuhdhwqgktgsixh.supabase.co';
+const ANON = 'sb_publishable_8oyI_sbe-lhShh4iLcC1Pg_DyA-Ob2T';
+document.getElementById('updated').textContent = '数据更新于 2026-11-13 11:22 (GMT+8)';
+
+const $ = id => document.getElementById(id);
+const I = n => '<svg class="ic"><use href="#i-' + n + '"/></svg>';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n);
+const getKey = () => ANON;  // anon key is baked in — safe, can only change status
+const firstLine = c => ((c || '').split('\n').map(l => l.trim()).filter(Boolean)[0] || '(无文案)');
+const byRec = {}; DATA.forEach(d => byRec[d.id] = d);
+
+function toast(msg, ok) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  t.style.borderColor = ok ? 'var(--green)' : 'var(--red)';
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ---- mission card ----
+function renderMission() {
+  const role = localStorage.getItem('tm_role') || '';
+  const name = localStorage.getItem('tm_name') || '';
+  const pend = DATA.filter(d => d.status === '未处理').length;
+  const hot = DATA.filter(d => d.status === '未处理' && (d.x || 0) >= 2).length;
+  const queue = DATA.filter(d => d.status === '拍摄中').length;
+  const done = DATA.filter(d => d.status === '已处理').length;
+  const m = $('mission');
+  if (role === 'Marketer') {
+    m.innerHTML = '<div class="mt">' + I('flame') + esc(name) + ',任务:从待挑选里选出值得拍的</div>'
+      + '<div class="md">待挑选 <b>' + pend + '</b> 条(其中真爆款 ×2+ 有 <b>' + hot + '</b> 条)'
+      + ' · 从下面清单直接选,或去雷达细看</div>';
+  } else if (role === 'Content Creator') {
+    m.innerHTML = '<div class="mt">' + I('video') + esc(name) + ',任务:清空拍摄中队列</div>'
+      + '<div class="md">队列还有 <b>' + queue + '</b> 条待做 · 已完成共 <b>' + done + '</b> 条</div>';
+  } else {
+    m.innerHTML = '<div class="mt">' + I('flame') + '团队概览</div>'
+      + '<div class="md">待挑选 <b>' + pend + '</b> 条 · 拍摄中 <b>' + queue + '</b> 条 · 已完成 <b>' + done + '</b> 条</div>';
+  }
+}
+
+function orderSections() {
+  // Marketer sees picks first; Creator sees shooting queue first
+  if ((localStorage.getItem('tm_role') || '') === 'Marketer') {
+    $('secShoot').parentNode.insertBefore($('secPick'), $('secShoot'));
+  } else {
+    $('secPick').parentNode.insertBefore($('secShoot'), $('secPick'));
+  }
+}
+
+// ---- identity ----
+function meLabel() {
+  const n = localStorage.getItem('tm_name'), r = localStorage.getItem('tm_role');
+  $('meLabel').innerHTML = n ? '<b>' + esc(n) + '</b>&nbsp;· ' + esc(r || '') : '未登记';
+}
+function showOverlay() {
+  $('oName').value = localStorage.getItem('tm_name') || '';
+  $('oRole').value = localStorage.getItem('tm_role') || 'Marketer';
+  $('overlay').classList.add('show');
+}
+$('oSave').onclick = () => {
+  const n = $('oName').value.trim();
+  if (!n) { $('oName').focus(); return; }
+  localStorage.setItem('tm_name', n);
+  localStorage.setItem('tm_role', $('oRole').value);
+  $('overlay').classList.remove('show');
+  meLabel(); orderSections(); renderMission();
+  refreshStatuses();
+};
+$('meBtn').onclick = showOverlay;
+meLabel();
+if (!localStorage.getItem('tm_name')) showOverlay();
+
+// ---- tabs ----
+document.querySelectorAll('.ntab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.ntab').forEach(x => x.classList.toggle('on', x === t));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id === 'p-' + t.dataset.p));
+  if (t.dataset.p === 'radar' && !$('radarWrap').querySelector('iframe')) {
+    const f = document.createElement('iframe'); f.src = 'index.html'; $('radarWrap').appendChild(f);
+  }
+});
+
+// ---- status write ----
+async function setStatus(d, val) {
+  try {
+    const r = await fetch(SUPA + '/rest/v1/posts?post_id=eq.' + encodeURIComponent(d.id), {
+      method: 'PATCH',
+      headers: { 'apikey': ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ status: val })
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    d.status = val;
+    cacheStatus(d.id, val);
+    toast('✓ @' + d.competitor + ' → ' + val, true);
+  } catch (e) {
+    toast('失败: ' + e.message, false);
+  }
+  renderWork();
+}
+
+// ---- 今日工作 ----
+function pillBtn(cls, icon, label) {
+  return '<button class="pill ' + cls + '">' + I(icon) + label + '</button>';
+}
+
+function renderWork() {
+  const pend = DATA.filter(d => d.status === '未处理');
+  const shoot = DATA.filter(d => d.status === '拍摄中');
+  const done = DATA.filter(d => d.status === '已处理');
+  $('stPending').textContent = pend.length;
+  $('stShoot').textContent = shoot.length;
+  $('stDone').textContent = done.length;
+
+  // shooting queue
+  const sl = $('shootList'); sl.innerHTML = '';
+  if (!shoot.length) sl.innerHTML = '<div class="none">队列是空的 — Marketer 去爆款雷达挑几条拖进「拍摄中」</div>';
+  shoot.forEach(d => {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = '<a class="who2" href="https://www.instagram.com/' + d.competitor + '/" target="_blank">@' + esc(d.competitor) + '</a>'
+      + ((d.x || 0) >= 2 ? '<span class="xb">×' + d.x + '</span>' : '')
+      + '<span class="hookline">' + esc(firstLine(d.caption)) + '</span>'
+      + '<a class="pill" href="' + d.url + '" target="_blank">' + I('ext') + '原帖</a>'
+      + pillBtn('ok', 'check', '完成') + pillBtn('bad', 'x', '退回');
+    const btns = r.querySelectorAll('button');
+    btns[0].onclick = () => setStatus(d, '已处理');
+    btns[1].onclick = () => setStatus(d, '未处理');
+    sl.appendChild(r);
+  });
+
+  // picks
+  const picks = pend.filter(d => (d.x || 0) >= 2).sort((a, b) => (b.x || 0) - (a.x || 0)).slice(0, 8);
+  const pl = $('pickList'); pl.innerHTML = '';
+  if (!picks.length) pl.innerHTML = '<div class="none">暂时没有 ×2 以上的未处理爆款 — 等周一自动抓新数据</div>';
+  picks.forEach(d => {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = '<span class="xb">×' + d.x + '</span>'
+      + '<a class="who2" href="https://www.instagram.com/' + d.competitor + '/" target="_blank">@' + esc(d.competitor) + '</a>'
+      + '<span class="hookline">' + esc(firstLine(d.caption))
+      + '<small>🔥' + d.score + ' · ER ' + d.er + '% · 💬' + fmt(d.comments) + '</small></span>'
+      + '<a class="pill" href="' + d.url + '" target="_blank">' + I('ext') + '原帖</a>'
+      + pillBtn('ok', 'video', '选中拍摄') + pillBtn('bad', 'x', '跳过');
+    const btns = r.querySelectorAll('button');
+    btns[0].onclick = () => setStatus(d, '拍摄中');
+    btns[1].onclick = () => setStatus(d, '跳过');
+    pl.appendChild(r);
+  });
+  renderMission();
+}
+
+function applyStatusCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem('st_cache') || '{}');
+    Object.keys(c).forEach(rid => { const d = byRec[rid]; if (d) d.status = c[rid]; });
+  } catch (e) {}
+}
+
+function cacheStatus(rid, val) {
+  try {
+    const c = JSON.parse(localStorage.getItem('st_cache') || '{}');
+    c[rid] = val; localStorage.setItem('st_cache', JSON.stringify(c));
+  } catch (e) {}
+}
+
+// ---- live statuses from Supabase ----
+async function refreshStatuses() {
+  applyStatusCache(); renderWork();  // last-known statuses first
+  if (Date.now() - (+localStorage.getItem('st_ts') || 0) < 600000) return;  // 10-min throttle
+  localStorage.setItem('st_ts', String(Date.now()));
+  const fresh = {};
+  try {
+    const r = await fetch(SUPA + '/rest/v1/posts?select=post_id,status', { headers: { 'apikey': ANON } });
+    if (!r.ok) return;
+    (await r.json()).forEach(row => {
+      const d = byRec[row.post_id];
+      if (d) d.status = row.status || '未处理';
+      if (row.status && row.status !== '未处理') fresh[row.post_id] = row.status;
+    });
+    localStorage.setItem('st_cache', JSON.stringify(fresh));
+    renderWork();
+  } catch (e) {}
+}
+
+orderSections();
+renderMission();
+renderWork();
+refreshStatuses();
+</script>
+</body>
+</html>

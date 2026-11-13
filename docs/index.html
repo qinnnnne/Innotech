@@ -1,25 +1,540 @@
 <!DOCTYPE html>
-<html lang="zh"><head>
+<html lang="zh">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta http-equiv="refresh" content="60">
-<title>爆款雷达 · 还在加载</title>
+<title>Innotech Security Sdn Bhd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-       background:#0a0d13;color:#e8e8ea;text-align:center;padding:24px;
-       font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
-  .spin{width:34px;height:34px;margin:0 auto 26px;border:3px solid #2a2f3a;
-        border-top-color:#ff785a;border-radius:50%;animation:s 1s linear infinite}
-  @keyframes s{to{transform:rotate(360deg)}}
-  h1{font-size:23px;margin:0 0 14px;font-weight:600}
-  p{margin:8px 0;color:#9a9aa2;font-size:15px;line-height:1.75}
-  .hint{margin-top:30px;font-size:13.5px;color:#6e6e78}
-  @media(prefers-reduced-motion:reduce){.spin{animation:none}}
-</style></head><body><div>
-  <div class="spin"></div>
-  <h1>你的页面还在加载中,请稍等</h1>
-  <p>第一次大约需要 20-60 分钟。</p>
-  <p>这一页会自己刷新,你可以先去忙别的。</p>
-  <p class="hint">等很久都没变?回到安装 SOP 第 7 步,<br>到仓库的 Actions 看 Sync Content 有没有跑完。</p>
-</div></body></html>
+  :root {
+    --bg: #0a0d13;
+    --card: #11151d;
+    --card-hi: #151a24;
+    --border: #1d2430;
+    --border-hi: #2c3546;
+    --text: #e8ecf3;
+    --muted: #8a94a6;
+    --faint: #5b6577;
+    --accent: #5ea1ff;
+    --green: #3fd68f;
+    --orange: #f0a33f;
+    --pink: #ff6b9d;
+    --red: #ff5c5c;
+    --fire1: #ff8a3d;
+    --fire2: #ff4d6d;
+    --font: 'Inter', -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --disp: 'Space Grotesk', 'Inter', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scrollbar-color: #232c3b var(--bg); }
+  body { background: var(--bg); color: var(--text); font-family: var(--font);
+    -webkit-font-smoothing: antialiased; }
+  ::selection { background: rgba(94,161,255,.3); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #232c3b; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2c3546; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  .ic { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round; fill: none; flex: none; }
+
+  header { position: sticky; top: 0; z-index: 50; background: rgba(10,13,19,.86);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border); padding: 13px 20px 12px; }
+  .hrow { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; max-width: 1440px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+  .mark { width: 31px; height: 31px; border-radius: 9px; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--fire1), var(--fire2));
+    box-shadow: 0 4px 16px rgba(255,92,80,.35); }
+  .mark .ic { width: 17px; height: 17px; color: #fff; }
+  h1 { font-family: var(--disp); font-size: 16.5px; font-weight: 700; letter-spacing: .2px; white-space: nowrap; line-height: 1.15; }
+  h1 small { display: block; color: var(--faint); font-family: var(--font); font-weight: 400;
+    font-size: 10.5px; letter-spacing: 0; }
+
+  .search { position: relative; }
+  .search > .ic { position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    color: var(--faint); width: 13.5px; pointer-events: none; }
+  input#fSearch { background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 12px 8px 32px; font-size: 13px; font-family: var(--font);
+    width: 200px; transition: border-color .18s, background .18s; }
+  input#fSearch:hover { border-color: var(--border-hi); }
+  input#fSearch:focus { border-color: var(--accent); outline: none; }
+  input#fSearch::placeholder { color: var(--faint); }
+
+  select, .btn { background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 11px; font-size: 13px; font-family: var(--font);
+    cursor: pointer; transition: border-color .18s, background .18s, color .18s;
+    display: inline-flex; align-items: center; gap: 6px; }
+  select:hover, .btn:hover { border-color: var(--border-hi); background: var(--card-hi); }
+  .btn:active { transform: scale(.97); }
+  .btn.on { border-color: var(--accent); color: var(--accent); background: rgba(94,161,255,.08); }
+
+  .tabs { display: flex; gap: 7px; flex-wrap: wrap; max-width: 1440px; margin: 12px auto 0; }
+  .tab { display: inline-flex; align-items: center; gap: 7px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 999px; padding: 6.5px 14px;
+    font-size: 13px; color: var(--muted); cursor: pointer; user-select: none;
+    transition: border-color .18s, background .18s, color .18s, transform .18s; }
+  .tab:hover { border-color: var(--border-hi); color: var(--text); }
+  .tab .cnt { font-family: var(--disp); font-weight: 600; font-size: 11px;
+    background: rgba(255,255,255,.06); padding: 1.5px 7.5px; border-radius: 99px;
+    font-variant-numeric: tabular-nums; }
+  .tab.on { color: var(--text);
+    background: linear-gradient(135deg, rgba(255,138,61,.15), rgba(255,77,109,.15));
+    border-color: rgba(255,120,90,.45); }
+  .tab.on .cnt { background: rgba(255,120,90,.25); }
+  body.dragging .tab.droppable { border-style: dashed; border-color: var(--accent); }
+  .tab.over { background: rgba(94,161,255,.22); color: var(--text); transform: scale(1.07); }
+
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; max-width: 1440px; margin: 9px auto 0; align-items: center; }
+  .chips .lbl { font-size: 12px; color: var(--faint); margin-right: 2px; }
+  .chip2 { display: inline-flex; align-items: center; gap: 5.5px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 999px; padding: 4.5px 12px;
+    font-size: 12px; color: var(--muted); cursor: pointer; user-select: none;
+    transition: border-color .18s, color .18s, background .18s;
+    font-variant-numeric: tabular-nums; }
+  .chip2 .ic { width: 12.5px; height: 12.5px; }
+  .chip2:hover { border-color: var(--border-hi); color: var(--text); }
+  .chip2.on { border-color: rgba(240,163,63,.6); color: var(--orange); background: rgba(240,163,63,.08); }
+
+  main { max-width: 1440px; margin: 22px auto; padding: 0 20px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(305px, 1fr)); gap: 18px; }
+
+  .card { position: relative; background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;
+    transition: transform .22s cubic-bezier(.2,.7,.3,1), border-color .22s, box-shadow .22s;
+    animation: fadeUp .45s cubic-bezier(.2,.7,.3,1) both; }
+  .card:hover { transform: translateY(-3px); border-color: var(--border-hi);
+    box-shadow: 0 12px 32px rgba(0,0,0,.45); }
+  .card.outlier::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--fire1), var(--fire2)); z-index: 2; }
+  .card[draggable] { cursor: grab; }
+  .card.lifting { opacity: .45; }
+  .card.saved { border-color: var(--green); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  .embed { position: relative; width: 100%; aspect-ratio: 4/5; background: #080b10; }
+  .embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .embed .ph { position: absolute; inset: 0; display: grid; place-items: center;
+    background: linear-gradient(110deg, #0b0e15 8%, #121826 18%, #0b0e15 33%);
+    background-size: 200% 100%; animation: shimmer 1.5s linear infinite; }
+  .embed .ph .ic { width: 30px; height: 30px; color: #2a3342; stroke-width: 1.6; }
+  @keyframes shimmer { to { background-position-x: -200%; } }
+
+  .meta { padding: 13px 15px 14px; display: flex; flex-direction: column; gap: 9px; }
+  .row1 { display: flex; align-items: center; gap: 7px; font-size: 13px; flex-wrap: wrap; }
+  .handle { color: #3a4456; cursor: grab; display: inline-flex; }
+  .handle .ic { width: 13px; height: 13px; }
+  .who { font-weight: 600; color: var(--accent); text-decoration: none; }
+  .who:hover { text-decoration: underline; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 500;
+    padding: 2.5px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  .badge .ic { width: 10.5px; height: 10.5px; }
+  .badge.bnew { color: var(--pink); border-color: rgba(255,107,157,.45); background: rgba(255,107,157,.07); }
+  .badge.bhorse { color: var(--orange); border-color: rgba(240,163,63,.45); background: rgba(240,163,63,.07); }
+  .badge.bbait { color: var(--accent); border-color: rgba(94,161,255,.4); background: rgba(94,161,255,.07); }
+  .date { margin-left: auto; color: var(--faint); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+  .nums { display: flex; gap: 6px; flex-wrap: wrap; }
+  .num { display: inline-flex; align-items: center; gap: 5px; background: #0c0f16;
+    border: 1px solid var(--border); border-radius: 9px; padding: 5px 9px;
+    font-size: 11px; color: var(--muted); }
+  .num .ic { width: 11.5px; height: 11.5px; }
+  .num b { font-family: var(--disp); color: var(--text); font-size: 12.5px; font-weight: 600;
+    font-variant-numeric: tabular-nums; }
+  .num.hot { border-color: rgba(255,122,77,.35); }
+  .num.hot .ic, .num.hot b { color: #ff7a4d; }
+  .num.x { border-color: rgba(240,163,63,.35); }
+  .num.x .ic, .num.x b { color: var(--orange); }
+  .num.er .ic, .num.er b { color: var(--green); }
+
+  .cap { color: var(--muted); font-size: 12.5px; line-height: 1.55; display: -webkit-box;
+    -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+  .cap.open { -webkit-line-clamp: unset; }
+  .cap b { color: var(--text); font-weight: 600; }
+  .ai { border-left: 2px solid var(--orange); background: rgba(240,163,63,.06);
+    padding: 8px 11px; border-radius: 0 10px 10px 0; font-size: 12px; line-height: 1.65;
+    color: var(--muted); }
+  .ai b { color: var(--orange); font-weight: 600; }
+  .mine { border-left: 2px solid var(--green); background: rgba(63,214,143,.06);
+    padding: 8px 11px; border-radius: 0 10px 10px 0; font-size: 12px; line-height: 1.65;
+    color: var(--muted); cursor: pointer; display: -webkit-box; -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; }
+  .mine.open { -webkit-line-clamp: unset; }
+  .mine b { color: var(--green); font-weight: 600; }
+
+  .srow { display: flex; align-items: center; gap: 7px; }
+  .srow label { font-size: 12px; color: var(--faint); }
+  .status { flex: 1; padding: 6px 9px; font-size: 12.5px; }
+  .status.s未处理 { color: var(--muted); }
+  .status.s拍摄中 { color: var(--orange); border-color: rgba(240,163,63,.5); }
+  .status.s已处理 { color: var(--green); border-color: rgba(63,214,143,.5); }
+  .status.s跳过 { color: var(--red); border-color: rgba(255,92,92,.5); }
+  .abtn { display: inline-flex; align-items: center; gap: 5px; background: #0c0f16;
+    color: var(--muted); border: 1px solid var(--border); border-radius: 9px;
+    padding: 6px 10px; font-size: 11.5px; font-family: var(--font); cursor: pointer;
+    text-decoration: none; transition: color .18s, border-color .18s, transform .1s; }
+  .abtn .ic { width: 12px; height: 12px; }
+  .abtn:hover { color: var(--accent); border-color: rgba(94,161,255,.5); }
+  .abtn:active { transform: scale(.95); }
+
+  .more { text-align: center; margin: 28px 0 44px; }
+  .more button { background: var(--card); color: var(--accent); border: 1px solid var(--border);
+    border-radius: 12px; padding: 11px 30px; font-size: 14px; font-family: var(--font);
+    cursor: pointer; transition: border-color .18s, background .18s; }
+  .more button:hover { border-color: var(--border-hi); background: var(--card-hi); }
+
+  .empty { color: var(--faint); text-align: center; padding: 70px 0; display: flex;
+    flex-direction: column; align-items: center; gap: 12px; font-size: 14px; }
+  .empty .ic { width: 34px; height: 34px; stroke-width: 1.5; color: #2c3546; }
+
+  footer { color: var(--faint); font-size: 11px; text-align: center; padding: 22px; }
+
+  #toast { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(8px);
+    background: var(--card-hi); border: 1px solid var(--border-hi); border-radius: 11px;
+    padding: 11px 20px; font-size: 13px; display: none; z-index: 99; opacity: 0;
+    box-shadow: 0 12px 32px rgba(0,0,0,.5); transition: opacity .2s, transform .2s; }
+  #toast.show { display: block; opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="M22 7l-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.5l7.1-.6z"/></symbol>
+  <symbol id="i-magnet" viewBox="0 0 24 24"><path d="m6 15-4-4 6.75-6.77a7.79 7.79 0 0 1 11 11L13 22l-4-4 6.39-6.36a2.14 2.14 0 0 0-3-3L6 15"/><path d="m5 8 4 4"/><path d="m12 15 4 4"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6"/><path d="M9 16h6"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><path d="m10 8 6 4-6 4Z"/><rect x="2" y="4" width="20" height="16" rx="3"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+  <symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></symbol>
+  <symbol id="i-pct" viewBox="0 0 24 24"><path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></symbol>
+</svg>
+<header>
+  <div class="hrow">
+    <div class="brand">
+      <div class="mark"><svg class="ic"><use href="#i-flame"/></svg></div>
+      <h1>Innotech Security Sdn Bhd<small id="updated"></small></h1>
+    </div>
+    <div class="search"><svg class="ic"><use href="#i-search"/></svg>
+      <input id="fSearch" placeholder="搜文案 / hashtag / 账号"></div>
+    <select id="fTracker"><option value="">全部 Tracker</option></select>
+    <select id="fComp"><option value="">全部 Competitor</option></select>
+    <select id="fSort">
+      <option value="x">按 爆款倍数 (vs 自家平均)</option>
+      <option value="score">按 Viral Score</option>
+      <option value="er">按 Engagement Rate</option>
+      <option value="comments">按 Comments</option>
+      <option value="likes">按 Likes</option>
+      <option value="date">按 最新日期</option>
+    </select>
+    <button class="btn" id="fVideo"><svg class="ic"><use href="#i-video"/></svg>只看视频</button>
+
+    <a class="btn" href="team.html" target="_top" title="工作台"><svg class="ic"><use href="#i-users"/></svg>工作台</a>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="chips" id="presets"></div>
+  <div class="chips" id="trends"></div>
+</header>
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none"><svg class="ic"><use href="#i-search"/></svg>没有符合条件的帖子</div>
+  <div class="more" id="moreWrap" style="display:none"><button id="moreBtn">载入更多</button></div>
+</main>
+<footer>数据来源 Supabase · 每周自动更新 · 状态更改即时同步全团队 · 视频由 Instagram 官方 embed 播放</footer>
+<div id="toast"></div>
+<script id="data" type="application/json">[{"id": "Dfn_gF9PCAe", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "学英文的人看这里！！！\n\n━━━━━━━━━━━━━━━━\n BT DOT COM TECHNOLOGY\nYour One-Stop IT Solution\n您的科技需求，BT 一站式搞定！\n Computer Sales & Repair\n POS System | AutoCount | Feedme | HRMS\n CCTV | Smart Home | Networking\n Visit Us｜欢迎光临\nNo. 139A, Jalan Lambak,\n86000 Kluang, Johor.\n WhatsApp：017-753 2167\n Tel：07-771 2167\n www.btcom.my\n Business Hours｜营业时间\nMon – Sat：10:00 AM – 6:30 PM\nSunday：Closed｜星期日休息\n BT DOT COM — Your One-Stop IT Solution.\n不只是卖科技产品，更是您值得信赖的 IT 伙伴。\n#BTDotCom #BTDotComTechnology #KluangIT #ComputerShop #ITSupport", "transcript": "有趣的网站推荐学英文的看这里初中到高中等级的英文都有就像字典一样无聊的话用游戏学英文也可以重点是前面背记得点赞关注", "brk": "Hook类型: 痛点直击\n结构: 痛点引入 → 资源推荐 → 互动转化\n为什么火: 精准切中学生群体提升英文的学习需求，推荐实用免费工具且门槛低。\n改编角度: 盘点提升居家安全的免费黑科技APP或CCTV实用功能，直击业主痛点。", "my": "厂区晚上 CCTV 看不清，很多老板第一反应就是整套换掉。\n\n觉得一定要花大钱换最高级的 camera，或者把所有线路重新拉过，才能解决画面模糊的问题。\n\n其实真的不用马上换新的，很多时候只是因为镜头长年累月积灰尘，或者夜间补光灯的角度没有调好。\n\n我们今天讲三个平时在工厂做 site 时常看的重点，你跟着看一次就能懂。\n\n第一步，检查镜头表面。\n油棕厂或者工厂外面灰尘油烟多，CCTV 镜头前面有一层雾气，晚上打灯时就会反光一片白。\n你只要拿干净的布轻轻擦一下，或者叫师傅上门帮你看一下，画面马上就清爽很多。\n\n第二步，看夜间红外线和补光灯。\n很多时候不是 camera 坏，是周边的灯光被货柜或者新起好的架子挡住。\n只要稍微调整一下安装的角度，避开盲区，晚上照出来的范围就完全不一样了。\n\n第三步，检查录像机和硬盘。\n有些厂用久了，录像机里面的硬盘容量满了或者在发热，导致回放的时候卡顿甚至黑屏。\n定期做个检查清理，或者换个适合工业环境的硬盘，系统才能稳稳跑完二十四小时。\n\n以前很多老板遇到晚上黑麻麻看不清，就直接花冤枉钱买整套新的。\n现在知道先检查这几个地方，不仅省时间，也避免换了新设备还是遇到同样的问题。\n\n有什么不确定的，直接 WhatsApp 我们，安排时间过来看 site。", "tags": "BTDotCom, BTDotComTechnology, KluangIT, ComputerShop, ITSupport", "bait": false, "type": "Video", "likes": 259, "comments": 0, "er": 43.24, "followers": 599, "date": "2026-11-12", "url": "https://www.instagram.com/p/Dfn_gF9PCAe/", "video": true, "ratio": 0, "score": 43.24, "status": "未处理", "x": 9.4}, {"id": "DfQ2RRfvyQK", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "一日一个键盘小知识 006\n\n━━━━━━━━━━━━━━━━\n💙 BT DOT COM TECHNOLOGY\nYour One-Stop IT Solution\n您的科技需求，BT 一站式搞定！\n🖥️ Computer Sales & Repair\n🧾 POS System | AutoCount | Feedme | HRMS\n📹 CCTV | Smart Home | Networking\n📍 Visit Us｜欢迎光临\nNo. 139A, Jalan Lambak,\n86000 Kluang, Johor.\n📲 WhatsApp：017-753 2167\n☎️ Tel：07-771 2167\n🌐 www.btcom.my\n🕙 Business Hours｜营业时间\nMon – Sat：10:00 AM – 6:30 PM\nSunday：Closed｜星期日休息\n💙 BT DOT COM — Your One-Stop IT Solution.\n不只是卖科技产品，更是您值得信赖的 IT 伙伴。\n#BTDotCom #BTDotComTechnology #KluangIT #ComputerShop #ITSupport", "transcript": "一日一个 键盘小知识 进盘的隐藏功能Window然后加低一秒缩小所有窗口回到桌面Window加Shift然后加T瞬间飞步被雾删的重要页面鼠标放在任务栏的音量图标上面就可以用鼠标控制音量大小Window然后加低就可以查看复制过的内容记得点赞关注", "brk": "Hook类型: 实用技能/效率提升\n结构: 引入主题 → 连续干货教学 → 引导关注\n为什么火: 零门槛实用技巧快速解决痛点，观众易顺手点赞收藏\n改编角度: 分享CCTV或Autogate日常使用小贴士，如手机远程回放监控的隐藏快捷操作", "my": "厂区晚上 CCTV 画面一片模糊？\n很多老板以为，是不是 camera 坏了，或者是镜头太脏。\n其实不一定是要整套换掉，有时候只是位置、灯光或线路出了状况。\n我们看下第一点，检查 camera 的安装位置。\n有时候角度没有对准重点区域，或者被树枝挡住，画面看起来就会有问题。\n调整一下角度或者修剪一下树枝，不用花冤枉钱。\n我们看下第二点，检查夜间的灯光情况。\n如果现场太暗，红外线不够，画面就会看不清。\n加个适合的补光灯，或者是换个有白光夜视功能的，问题就解决了。\n我们看下第三点，检查接头和电线。\n时间久了，下雨受潮或者老鼠咬到，都会影响信号传输。\n我们技师过去测试一下线路，换掉受损的线，画面马上就清爽了。\n以前很多老板遇到 CCTV 有问题，就直接叫人全部换掉，花了很多冤枉钱。\n现在只要先检查这几个地方，就能清楚知道是哪里坏了。\n有什么关于安防的问题，直接 WhatsApp 我们，安排时间过去看 site。", "tags": "BTDotCom, BTDotComTechnology, KluangIT, ComputerShop, ITSupport", "bait": false, "type": "Video", "likes": 166, "comments": 0, "er": 27.71, "followers": 599, "date": "2026-11-03", "url": "https://www.instagram.com/p/DfQ2RRfvyQK/", "video": true, "ratio": 0, "score": 27.71, "status": "未处理", "x": 6.0}, {"id": "DdStECgp3ZA", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "诊所还在靠员工大声喊号码？📢\n\n我们为客户设置了一套更方便的诊所呼叫系统：\n\n✅ 手机一按，自动呼叫下一位\n✅ 大屏幕即时显示号码与诊室\n✅ 支持多位医生、多个诊室\n✅ 可打印排队号码纸\n✅ 减少前台工作，让候诊流程更顺畅\n\n无论是诊所、牙科、兽医诊所或其他需要排队叫号的场所，都可以根据实际需求进行设置。\n\n想让顾客排队更有秩序，也让员工操作更轻松？\n\n📍 BT DOT COM TECHNOLOGY｜居銮\n📞 017-753 2167\n💬 欢迎私讯我们了解适合你的呼叫系统", "transcript": "按触指Next 它会喊105.2号指张音号解释没有 又是我这个呢给证所的人用OK就可以给医生这个放在高德你高德 顾客来看来什么病可能一个是看手的一个是看脚的看手的去一看脚的去二一我按触指这个触的值你拿着看102 看手一个就给那个顾客如果医生要叫这个102 按Next它会喊105.2号指张音号解释你就可以进去如果也是证所2非常同一架手机高德1把它换成高德2然后来到证所2Next105.2号指张音号解释OK当然你两个医生吗如果你有两台手机陈医生 黄医生一人一台手机你一个高德1一个高德2解释用快点上去简单这个萤幕看到吗这么大个萤幕放两台号码浪费那个萤幕旁边那个地方我放一个广告在上面好吗OKOK", "brk": "Hook类型: 痛点直击\n结构: 痛点引入 → 实机演示 → 多场景应用 → 行动呼叫\n为什么火: 精准切中传统诊所排队混乱、前台效率低的痛点，演示直观易懂\n改编角度: 演示CCTV或Autogate如何远程一键掌控，突出为店面或住宅省时省力的便捷性", "my": "厂区晚上 CCTV 看不清？不一定是 camera 坏了，很多时候是位置、灯光或线路的问题。\n\n很多人以为，画面看不清楚，就是整套系统要全部拆掉重装，或者要花大钱升级。\n\n其实很多时候，不是设备不行，而是没有根据现场环境来调整，或者线路老化导致信号不好。\n\n第一步，先检查 camera 的安装位置。有些地方有死角，或者被树枝和招牌挡住，调整一下角度，画面马上就差很多。\n\n第二步，看晚上的补光够不够。如果厂区太暗，普通的 CCTV 看不清楚，我们要加装适合的灯光，或者换成有夜视功能的型号。\n\n第三步，检查线路和录像机。如果是拉线的问题或者硬盘快满，画面就会卡或者糊，找我们过来排查一下就知道了。\n\n以前有个油棕厂的老板，厂里晚上黑漆漆的，CCTV 完全看不到人影，以为要花大钱把整套系统换掉。\n\n我们过去看 site 之后，帮他重新拉线和调整 camera 的位置，不用换新设备，问题就解决了。\n\n以前厂里一到晚上就担心看不清，整天要去看现场很麻烦。\n\n现在只要装好系统，晚上在手机直接看，清清楚楚，省心很多。\n\n有什么想问的随时讲哦，WhatsApp 我们，安排看现场。", "tags": "", "bait": false, "type": "Video", "likes": 48, "comments": 0, "er": 8.01, "followers": 599, "date": "2026-09-15", "url": "https://www.instagram.com/p/DdStECgp3ZA/", "video": true, "ratio": 0, "score": 8.01, "status": "未处理", "x": 1.7}, {"id": "DeBFRMlJN4g", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "居銮it公司跟网吧有什么关系？🧐", "transcript": "所以就给我玩一渐我们玩渐可以们讲现在我们公司老板讲放一台Gaming寄在这边给所有来我们店的朋友如果你今天想要我们想要试下主机渐渐打起来怎么样就可以来这边Try虽然讲我们是有服务中小企业可是毕竟我们是IT公司嘛我们也是会有服务很多的像我们要打Games我们要读书买电脑我们这边其实都会找给你们我们电话号码在这里有需要马上点赞我们这里是集合的bt.com让你的声音不再让手写单过囤专目更清晰的IT公司", "brk": "Hook类型: 身份共鸣\n结构: 疑问引发好奇 → 展示免费福利 → 呼吁点赞留资\n为什么火: 打破IT公司刻板印象，用免费Gaming PC吸引目标客群。\n改编角度: 拍摄门店展出CCTV或Autogate实机，让客户现场体验智能安防操作。", "my": "厂区晚上 CCTV 画面一片模糊？\n\n很多老板以为，一定是 camera 坏了或者要全部换掉，花大钱重新拉线。\n\n其实根本不用。很多时候只是位置不对、镜头脏了，或者是线路受潮的小问题。\n\n我们平时去居銮和永平的厂看 site 的时候，经常遇到这种状况。\n\n第一步，先检查 CCTV 的角度和供电。看看是不是厂房扩建后被柱子挡住，或者雨季时雨水影响了镜头。\n\n第二步，看录像机和硬盘有没有老化。很多时候画面卡顿不是 camera 的问题，是硬盘满月没覆盖，或者电箱里的供应不稳定。\n\n第三步，测试夜视的红外线。如果是灯光不够，我们在适当位置加个辅助灯或者调整角度，晚上就能看得清清楚楚。\n\n以前老板们遇到厂里少拍到一个死角，就直接买新的整套装上去，花冤枉钱。\n\n现在我们先过来看 site，再跟你讲是要修、要换，还是调一下就好，帮你省下不必要的开销。\n\n有需要看现场的老板，直接 WhatsApp 我们，安排时间过去看一下。", "tags": "", "bait": false, "type": "Video", "likes": 19, "comments": 3, "er": 3.67, "followers": 599, "date": "2026-10-03", "url": "https://www.instagram.com/p/DeBFRMlJN4g/", "video": true, "ratio": 0, "score": 4.67, "status": "未处理", "x": 1.0}, {"id": "De87E-JPfmv", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "📹 一台 CCTV，价格竟然抵得上一台电脑？！😱💸\n\n到底是贵得离谱，还是强得有道理？🤔\n\n🔥 今天就来看看 TP-Link VIGI InSight PTZ5425 到底有什么真本事！\n\n看完你再来评评理！👀\n\n━━━━━━━━━━━━━━━━\n💙 BT DOT COM TECHNOLOGY\nYour One-Stop IT Solution\n您的科技需求，BT 一站式搞定！\n🖥️ Computer Sales & Repair\n🧾 POS System | AutoCount | Feedme | HRMS\n📹 CCTV | Smart Home | Networking\n📍 Visit Us｜欢迎光临\nNo. 139A, Jalan Lambak,\n86000 Kluang, Johor.\n📲 WhatsApp：017-753 2167\n☎️ Tel：07-771 2167\n🌐 www.btcom.my\n🕙 Business Hours｜营业时间\nMon – Sat：10:00 AM – 6:30 PM\nSunday：Closed｜星期日休息\n💙 BT DOT COM — Your One-Stop IT Solution.\n不只是卖科技产品，更是您值得信赖的 IT 伙伴。\n#BTDotCom #BTDotComTechnology #KluangIT #ComputerShop #ITSupport", "transcript": "你敢相信嗎?一粒CCTV等於一台電腦的價格為什麼這裡CCTV那麼貴?沒錯!你看它不是普通的CCTV25FETER OPTIGUS Zoom遠遠的東西都能看得到清清楚楚而不是Digital Zoom360度旋轉自動追蹤人晚上還可以拍彩色所有的東西在夜間照得到清清楚楚都跟很像啊這個景觀是有誰用啊?適合Shopping Mall大樓位號工廠大型卡巴都適合還有還有抽家很多的人講真的啦這種CCTV呢就是適合那種需要大範圍的公司如果你們想了解更多歡迎來居然PT.com有One Stock IG Solution找反兩我吧", "brk": "Hook类型: 痛点直击与价格反差\n结构: 抛出天价疑问 → 25倍光学变焦与夜视功能展示 → 适用大场所定位与导流\n为什么火: 用“CCTV比电脑贵”制造认知反差，精准展示强悍功能消除价格疑虑\n改编角度: 突出高端CCTV或Autogate的高阶黑科技，用“一分钱一分货”打破便宜没好货迷思", "my": "厂区晚上 CCTV 连车牌都看不清，老板你是不是以为只能全部换掉？\n\n很多老板以为，画面不清楚就是镜头买便宜了，或者一定要花大钱换整套系统。\n\n其实很多时候，不是 camera 的问题，而是位置、角度或者焦段没有选对。\n\n第一，先看你的镜头焦段够不够。如果厂里范围很大，普通镜头拉近就全是马赛克，要用对适合大范围的型号。\n\n第二，看夜间灯光和环境。很多地方晚上黑漆漆一片，光靠 infrared 不够，要看现场是加装灯光还是调整角度。\n\n第三，检查线路和录像主机。有些时候不是 camera 坏了，是传输线路老化或者设置不对，白白浪费钱去换新的。\n\n以前厂里有死角，发生事情调不到画面，只能看着干着急；找人来看又怕被砍菜头，换了还是看不清。\n\n现在只要先找我们过来看 site，帮你检查清楚到底是哪里出问题，再跟你讲要修、要换还是不用动。\n\n有什么 CCTV 的问题，直接 WhatsApp 我们，安排时间过去看一下。", "tags": "BTDotCom, BTDotComTechnology, KluangIT, ComputerShop, ITSupport", "bait": false, "type": "Video", "likes": 27, "comments": 0, "er": 4.51, "followers": 599, "date": "2026-10-26", "url": "https://www.instagram.com/p/De87E-JPfmv/", "video": true, "ratio": 0, "score": 4.51, "status": "未处理", "x": 1.0}, {"id": "DeEaBvGpGMJ", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "when你公司是一家it一站式服务行业", "transcript": "", "brk": "", "my": "", "tags": "", "bait": false, "type": "Video", "likes": 26, "comments": 0, "er": 4.34, "followers": 599, "date": "2026-10-04", "url": "https://www.instagram.com/p/DeEaBvGpGMJ/", "video": true, "ratio": 0, "score": 4.34, "status": "未处理", "x": 0.9}, {"id": "Ddix7FmJ5Co", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "💻 电脑格式化到一半一直卡住，是硬盘坏了吗？\n\n这台电脑送来时，格式化过程反复卡住。我们先检查 SSD，再逐步排查其他硬件，最后发现问题出在主板。\n\n电脑卡住，不一定重装系统就能解决。先找出原因，才不会换错零件、花冤枉钱。\n\n📍电脑有类似问题？欢迎私讯 BT DOT COM，我们在居銮帮你检查。", "transcript": "他會把電話這樣造集這麼不可那樣電板有問題他跟他講solution我們在國內電腦的時候我會hanger所以我們先做檢測線確保是ASD還是NACRAM沒有問題的情況下我們才會推測是Modernboard或者是PoC測那我換核心ASD、RAM還是一樣就要整個板踩上來它是要換核心還是我們手裡面的NACRAM電板這樣也會把電腦都換掉嗎我們的專業來講肯定是不虧啦我們一定會確保這個電腦是完美沒有問題的時候會給顧客我們的粽子是這樣子的你就可以了", "brk": "Hook类型: 痛点直击\n结构: 提出故障现象 → 逐步排查过程 → 给出专业解决方案\n为什么火: 用真实维修场景建立专业信任，帮客户避坑省钱\n改编角度: 拍摄CCTV或Autogate卡顿失灵排查过程，强调精准检测不花冤枉钱", "my": "厂区晚上CCTV画面突然模糊或看不清，老板，你是不是以为直接换个新的camera就能搞定？\n\n很多人以为画面有问题，就是镜头坏了或者要整个系统重做。\n\n其实不一定，很多时候是位置、灯光，或者线路出了状况。\n\n第一步，先检查现场的CCTV线路和供电。我们过去看site时，不会一上来就叫你换贵的东西，先顺着线和电源查清楚，看是接口松脱还是供电不稳，确定问题出在哪里。\n\n第二步，检查录像机硬盘和设置。有时候画面卡或者没录到，问题不在camera，而是里面的硬盘满了或者设置跑掉。我们先帮你测试硬盘读写正不正常，能省下换新设备的钱就尽量帮老板省。\n\n第三步，看整体配置和覆盖范围。如果是暗角太多或者雨天反光，我们会建议调整角度或者补光，而不是盲目加装新设备。\n\n以前很多老板遇到厂里CCTV有问题，随便叫人来就直接叫你整套换掉，花了很多冤枉钱，结果问题还是没有解决。\n\n现在我们去到现场，一定先做检测，找出真正原因，跟你讲清楚要修、要换还是不用动，才出报价。\n\n厂里的CCTV或Auto Gate有问题？WhatsApp我们，安排时间过来帮你检查。", "tags": "", "bait": false, "type": "Video", "likes": 26, "comments": 0, "er": 4.34, "followers": 599, "date": "2026-09-21", "url": "https://www.instagram.com/p/Ddix7FmJ5Co/", "video": true, "ratio": 0, "score": 4.34, "status": "未处理", "x": 0.9}, {"id": "DfizHASvH4S", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "btdotcom", "caption": "从 Cafe变办公室改造，不过BT顾客还是欢迎上来一面谈一面喝杯咖啡😉\n\n#btdotcom #kluang #YourOneStopITSolution #cafetooffice #showroomcafe", "transcript": "多功能板娘 這是在拆家嗎這個以前是我們的IT cafe嘛 已經荒廢了很久認識的人都知道我的毛之前是住在這裡的業務發展越來越大然後員工也投訴我們板娘啊 我的位置很小我沒有辦法做這麼多的工作所以我們決定把我們的Marketing部門移上來這個區域可以在定型改造長修等到時候我們做好了就是我們的Marketing department敬請期待", "brk": "Hook类型: 身份共鸣\n结构: 吐槽现状 → 宣布改造 → 展望未来\n为什么火: 用真实幽默的日常吐槽引发共鸣，展现公司扩张的实力\n改编角度: 拍CCTV或Autogate装太多导致公司不够位，搞笑展示升级ELV系统全过程", "my": "老板，厂里空间不够用，员工一直投诉位子太小，你是不是也在头痛要怎么改？\n\n很多人以为要扩建厂房或搬迁才能解决，觉得很麻烦又花钱。\n\n其实不用搬。很多时候是空间没有重新规划好。\n\n第一，把不常用的旧地方清理出来。像一些荒废的角落或旧仓库，先把杂物清走，看实际能用多大面积。这样不用租新地方，就能腾出空间。\n\n第二，重新划分部门位置。比如把办公室或 Marketing 移到楼上，或者把生产区和办公区隔开。这样员工做工时不会挤在一起，位子变大，做事也比较顺。\n\n第三，顺便检查那边的基础设备。空间改好了，顺便看一下 CCTV 的死角有没有变多、网线和电线要不要重新拉。一次过搞定，以后不用再麻烦。\n\n以前空间乱又挤，员工投诉位子小，找东西也麻烦。\n\n换了规划后，区域分得很清楚，员工做工舒服，效率也提高。\n\n有什么空间改动或安防设备的问题，直接 WhatsApp 我们，过来看 site 帮你想办法。", "tags": "btdotcom, kluang, YourOneStopITSolution, cafetooffice, showroomcafe", "bait": false, "type": "Video", "likes": 23, "comments": 0, "er": 3.84, "followers": 599, "date": "2026-11-10", "url": "https://www.instagram.com/p/DfizHASvH4S/", "video": true, "ratio": 0, "score": 3.84, "status": "未处理", "x": 0.8}, {"id": "DfGzhy4yDC1", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "edenrobot_official", "caption": "新来的06年…", "transcript": "你要站在这边做什么我已经跟你讲了嘛你手上要拿着Flyer然后谷歌来的时候啊你要分那个传单给他们你要跟他们笑吗你要笑哦 宝贝 我们的感情好像跳楼机突然升空 又落起啊跳楼机 爱跳楼机 爱跳楼机然后谷歌来到时候你要跟他讲嘛我们是任何个月都可以升级从传统变成智能电动门的我们有两款有线 无线全部都可以的你有听到吗你有听到吗15分钟就可以升级智能电动门哦小解翼 我喜欢吃小解翼 小解翼 小解翼小解翼 小解翼 小解翼", "brk": "Hook类型: 痛点直击结合反常识整活\n结构: 交代背景任务 → 疯狂洗脑推销 → 抛出核心卖点\n为什么火: 用职场整活和无厘头洗脑打破传统广告套路，自带娱乐属性\n改编角度: 借06年新员工发传单场景，搞笑推销15分钟升级Autogate或CCTV系统", "my": "老板，厂区门禁又卡住，罗里进不去，还要下去按按键开门？\n\n很多人以为电动门按坏了就要整套换掉，又要花大钱又要拆墙壁。\n\n其实很多时候不是门坏了，是里面的控制板或接收器出了问题，根本不用换整套。\n\n今天跟你讲三个不用换门也能升级智能电动门的方法，帮你省时间和力气。\n\n第一个，检查你的电动门系统。看看是滑轨卡住，还是遥控器信号不好。如果是遥控器问题，配个新频率或者换个接收器就好了，不需要整套拆掉重做。\n\n第二个，看你需要有线还是无线连接。我们有两款系统可以选，不管你是工厂大门还是厂房卷帘门，都可以直接接上。不用大兴土木，师傅过去看 site 后就会跟你讲最适合哪一种。\n\n第三个，了解升级成自动门或者 Access Control 的做法。我们从安装到售后都有做，不管是看 site、报价还是后续的维护，全部由我们公司负责。\n\n以前厂里电动门坏了，员工要跑上跑下开门，卡在门口浪费时间，老板又担心安全问题。\n\n现在直接换成智能电动门和 Access Control系统，进出不用下车，安全又方便。\n\n有什么问题或者想要了解 CCTV、电动门、Alarm 的老板，直接 WhatsApp 我们，我们安排时间过去看 site。", "tags": "", "bait": false, "type": "Video", "likes": 44, "comments": 0, "er": 0.72, "followers": 6125, "date": "2026-10-30", "url": "https://www.instagram.com/p/DfGzhy4yDC1/", "video": true, "ratio": 0, "score": 0.72, "status": "未处理", "x": 1.4}, {"id": "DdqnzCzDQXy", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "edenrobot_official", "caption": "很多人都搞不懂自己家的autogate 是不是这个型号？ 可不可以加app来控制电动门？\n#dcmoto #智能手机控制电动门 #电动门 #edenrobot", "transcript": "自從上次我們講975可以加手機控制後我們的後台被溫爆了啊我整理了最多人問的兩個問題975會怎樣加APP?我加的Model是不是975?ok 這影片一次跟我講清楚叫你講分辨認準一下這幾個牌子基本上都是用Wireless的款式不確定也沒關係再教你一個簡單的方法走 我們去看看你要Auto GameBox有沒有Done有Done的話基本上都是用我們Wireless的Module知道講分辨了走 現在帶你們去看夾安裝插Type-C第二步SmartLiveAPP右上角點擊Add device設備Reset按10秒進入配對模式第三步連接2.4G Wi-Fi點擊Done手機配對就完成了現在把你的遙控器配對給設備首先點擊Connection第二步拿原本遙控器放在殼上卡著左右鍵同時一起按住APP顯示Success就成功了看到嗎就這樣簡單夾過後不影響你原本的Remote也可以用手機遠程操控你可以邊看CCTV邊控制你的大門在夾Wireless的Sensor就可以找你們到底有沒有管如果不明白的話記得問我如果你有朋友也是這款Moto記得分享給他拜拜", "brk": "Hook类型: 痛点直击\n结构: 抛出疑问 → 辨认型号 → 实操演示 → 联动生态\n为什么火: 解决特定型号痛点，教程极具实用性且门槛低\n改编角度: 演示CCTV联动Autogate或手机远程开门全过程，吸纳同类车主", "my": "厂区大门或者住家电动门，到底能不能用手机开？\n\n很多人以为要换掉整套系统，或者要花大钱重新拉线，觉得很麻烦。\n\n其实不是这样的，很多时候只要加个配件就能搞定。\n\n第一步，检查你现有的电动门控制箱。看看里面有没有预留位置，或者直接看一下你现在的遥控器牌子和型号。如果看不懂也没关系，拍照发给我们看一下就知道了。\n\n第二步，确认可以用之后，我们上门帮你安装。师傅会把智能模块接好，插上线，整个过程不需要破坏你原本的门结构。\n\n第三步，在手机下载对应的 App，按照步骤连接 Wi-Fi，把你的遥控器信号配对进去。配对成功后，就算你不在家，也可以直接用手机开门。\n\n以前出门经常要找遥控器，或者家人回来没有手按，还要特地走出来开门。\n\n换成手机控制以后，坐在车里或者在外面，直接按一下手机就能开门，还可以配合 CCTV 顺便看是谁回来。\n\n有什么关于电动门或者 CCTV 的问题，WhatsApp 我们，安排时间过来看现场。", "tags": "dcmoto, 智能手机控制电动门, 电动门, edenrobot", "bait": false, "type": "Video", "likes": 28, "comments": 1, "er": 0.47, "followers": 6125, "date": "2026-09-24", "url": "https://www.instagram.com/p/DdqnzCzDQXy/", "video": true, "ratio": 0, "score": 0.51, "status": "未处理", "x": 1.0}, {"id": "De9TSUnEZzn", "tracker": "Innotech Security Sdn Bhd 竞对", "competitor": "edenrobot_official", "caption": "Eden Robot 要办线下活动啦！ 🎉\n\n这次我们跟 ArmyGrade 一起参加 HOMEDEC KLCC！\n\n我们会在现场教大家，怎么把 autogate 改装成 App 控制。不用换 motor，原本的 remote 照样能用，整个过程都可以亲眼看到感受到 👀\n\n📍 KLCC，Hall 6\n🏠 Booth 6P074 – 6P077\n📅 10 月 29 日 – 11 月 1 日\n⏰ 早上 10 点 – 晚上 8 点\n\n✨ 只有 4 天，现场还有特别优惠\n📸 家里已经有 autogate 的，带你 gate 的照片来，我们帮你看适合哪一款\n\n留言「KLCC」，我们把 booth map 发给你！👇\n等你哦～\n\n#EdenRobot #ArmyGrade #HOMEDEC #HOMEDECKL #KLCC #SmartAutogate #智能大门 #AutogateMalaysia", "transcript": "啊啊一段落不落八仙下活动啦即将在Home Deck KLCC和Amiguray一起改装大门变成手机控制这四天的仙下活动还有特别优惠哦等你来哦", "brk": "Hook类型: 痛点直击+活动预告\n结构: 展会预告 → 现场改装演示 → 独家优惠呼吁\n为什么火: 击中旧Autogate用户想升级智能但又舍不得换motor的痛点。\n改编角度: 拍短视频展示如何不换motor直接把旧Autogate升级成App控制。", "my": "老板，你家里的电动门是不是每次下雨，都要淋湿跑去按遥控器？\n\n很多人以为，要换掉整套 motor 才能用手机开门，其实根本不用花冤枉钱。\n\n只要加一个小装置，原本的 remote 照样能用，手机直接就能开门关门。\n\n我们来看第一个方法，检查你家里的 autogate 是哪一种型号。\n\n不同牌子的主板接线有点不一样，找经验丰富的技师来看一下最稳阵。\n\n不需要拆掉原本的轨道，直接在现有系统上加装智能模组就可以。\n\n第二个方法，看家里有没有铺好线路或者 Wi-Fi 信号到门口。\n\n手机控制主要靠网络连接，信号稳不稳定决定了开门顺不顺。\n\n如果不确定信号够不够，我们可以帮你在现场测试一下。\n\n第三个方法，拍照给我们或者直接拿照片过来。\n\n只要拍下你家 autogate motor 的箱子里面，我们一看就知道能不能改。\n\n这样不用白跑一趟，也能省下不必要的检查费。\n\n以前很多老板以为换智能门很麻烦，要敲敲打打搞很久。\n\n现在只要装个配件，半天就能搞定，出门在外也能随时开门给送货的。\n\n有什么问题想了解的，直接 WhatsApp 我们，安排看现场。", "tags": "EdenRobot, ArmyGrade, HOMEDEC, HOMEDECKL, KLCC, SmartAutogate, 智能大门, AutogateMalaysia", "bait": true, "type": "Video", "likes": 22, "comments": 0, "er": 0.36, "followers": 6125, "date": "2026-10-26", "url": "https://www.instagram.com/p/De9TSUnEZzn/", "video": true, "ratio": 0, "score": 0.36, "status": "未处理", "x": 0.7}]</script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const SUPA = 'https://ihhcwbuhdhwqgktgsixh.supabase.co';
+const ANON = 'sb_publishable_8oyI_sbe-lhShh4iLcC1Pg_DyA-Ob2T';
+const STATUSES = ["未处理", "拍摄中", "已处理", "跳过"];
+document.getElementById('updated').textContent = '更新于 2026-11-13 11:22 (GMT+8)';
+const PAGE = 48;
+let shown = PAGE;
+let videoOnly = false;
+let curTab = '全部';
+
+const $ = id => document.getElementById(id);
+const fmt = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n);
+const getKey = () => ANON;  // anon key is baked in — safe, can only change status
+const I = n => '<svg class="ic"><use href="#i-' + n + '"/></svg>';
+const esc = s => String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const byRec = {}; DATA.forEach(d => byRec[d.id] = d);
+const TRENDS = [["btdotcom", 2], ["btdotcomtechnology", 2], ["kluangit", 2], ["computershop", 2], ["itsupport", 2]];
+DATA.forEach(d => {
+  d.days = d.date ? Math.max(0, Math.floor((Date.now() - new Date(d.date + 'T00:00:00')) / 864e5)) : null;
+  d.horse = d.followers > 0 && d.followers < 50000 && ((d.x || 0) >= 2 || d.score >= 10);
+});
+const PRESETS = [
+  { k: 'px', icon: 'trend', label: '真爆款 ×2+', f: d => (d.x || 0) >= 2 },
+  { k: 'pn', icon: 'star', label: '近7天', f: d => d.days !== null && d.days <= 7 },
+  { k: 'ph', icon: 'zap', label: '黑马', f: d => d.horse },
+  { k: 'pb', icon: 'magnet', label: '引流帖', f: d => d.bait },
+];
+const presetOn = {};
+
+function toast(msg, ok) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  t.style.borderColor = ok ? 'var(--green)' : 'var(--red)';
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// filters
+const comps = [...new Set(DATA.map(d => d.competitor))].sort();
+comps.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = '@'+c; $('fComp').appendChild(o); });
+[...new Set(DATA.map(d => d.tracker))].forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; $('fTracker').appendChild(o); });
+
+function matchQ(d) {
+  const q = ($('fSearch').value || '').trim().toLowerCase();
+  return !q || (d.caption + ' ' + (d.tags || '') + ' ' + (d.transcript || '') + ' ' + (d.brk || '') + ' ' + d.competitor).toLowerCase().includes(q);
+}
+
+function basePool() {
+  const t = $('fTracker').value, c = $('fComp').value;
+  return DATA.filter(d => (!t || d.tracker === t) && (!c || d.competitor === c) && (!videoOnly || d.video)
+    && matchQ(d) && PRESETS.every(p => !presetOn[p.k] || p.f(d)));
+}
+
+function filtered() {
+  const s = $('fSort').value;
+  let arr = basePool().filter(d => curTab === '全部' || d.status === curTab);
+  const key = { score:'score', er:'er', comments:'comments', likes:'likes', x:'x' }[s];
+  if (s === 'date') arr.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  else arr.sort((a,b) => (b[key]||0) - (a[key]||0));
+  return arr;
+}
+
+let dragRec = null;
+
+function renderTabs() {
+  const pool = basePool();
+  const counts = { '全部': pool.length };
+  STATUSES.forEach(s => counts[s] = pool.filter(d => d.status === s).length);
+  $('tabs').innerHTML = '';
+  ['全部', ...STATUSES].forEach(name => {
+    const el = document.createElement('div');
+    el.className = 'tab' + (curTab === name ? ' on' : '') + (name !== '全部' ? ' droppable' : '');
+    el.innerHTML = esc(name) + ' <span class="cnt">' + counts[name] + '</span>';
+    el.onclick = () => { curTab = name; shown = PAGE; render(); };
+    if (name !== '全部') {
+      el.ondragover = e => { if (dragRec) { e.preventDefault(); el.classList.add('over'); } };
+      el.ondragleave = () => el.classList.remove('over');
+      el.ondrop = e => {
+        e.preventDefault(); el.classList.remove('over');
+        const d = byRec[dragRec]; dragRec = null;
+        if (d && d.status !== name) setStatus(d, name);
+      };
+    }
+    $('tabs').appendChild(el);
+  });
+}
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target, pid = el.dataset.pid;
+      if (!el.querySelector('iframe')) {
+        const f = document.createElement('iframe');
+        f.src = 'https://www.instagram.com/p/' + pid + '/embed/';
+        f.loading = 'lazy'; f.allow = 'autoplay; encrypted-media';
+        el.appendChild(f);
+      }
+      io.unobserve(el);
+    }
+  });
+}, { rootMargin: '400px' });
+
+async function setStatus(d, val) {
+  try {
+    const r = await fetch(SUPA + '/rest/v1/posts?post_id=eq.' + encodeURIComponent(d.id), {
+      method: 'PATCH',
+      headers: { 'apikey': ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ status: val })
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    d.status = val;
+    cacheStatus(d.id, val);
+    toast('✓ @' + d.competitor + ' 已移到「' + val + '」', true);
+  } catch (e) {
+    toast('更新失败: ' + e.message + (String(e.message).includes('401') || String(e.message).includes('403') ? ' — 密钥无效?' : ''), false);
+  }
+  render();
+}
+
+function card(d, idx) {
+  const el = document.createElement('div');
+  el.className = 'card' + ((d.x || 0) >= 2 ? ' outlier' : '');
+  el.style.animationDelay = Math.min(idx % PAGE, 14) * 30 + 'ms';
+  el.draggable = true;
+  el.ondragstart = e => {
+    dragRec = d.id;
+    e.dataTransfer.effectAllowed = 'move';
+    el.classList.add('lifting');
+    document.body.classList.add('dragging');
+  };
+  el.ondragend = () => {
+    el.classList.remove('lifting');
+    document.body.classList.remove('dragging');
+    dragRec = null;
+  };
+  const typeIcon = d.video ? 'video' : (d.type === 'Carousel' ? 'layers' : 'image');
+  const days = d.days, horse = d.horse;
+  const ago = days === null ? '' : (days === 0 ? '今天' : days + '天前');
+  const lines = (d.caption || '').split('\n').map(l => l.trim()).filter(Boolean);
+  const hook = lines[0] || '';
+  const tr = (d.transcript && d.transcript !== '(转录失败)' && d.transcript !== '(无口播内容)') ? d.transcript : '';
+  el.innerHTML = `
+    <div class="embed" data-pid="${d.id}"><div class="ph"><svg class="ic"><use href="#i-${typeIcon}"/></svg></div></div>
+    <div class="meta">
+      <div class="row1">
+        <span class="handle" title="拖到上方 tab 即可归类">${I('grip')}</span>
+        <a class="who" href="https://www.instagram.com/${d.competitor}/" target="_blank">@${d.competitor}</a>
+        <span class="badge">${d.type || '-'}</span>
+        ${days !== null && days <= 7 ? '<span class="badge bnew">' + I('star') + '新帖</span>' : ''}
+        ${horse ? '<span class="badge bhorse">' + I('zap') + '黑马</span>' : ''}
+        ${d.bait ? '<span class="badge bbait" title="「留言XX」引流打法 — 评论被引流放大,漏斗设计值得学">' + I('magnet') + '引流</span>' : ''}
+        <span class="date" title="${d.date || ''}">${ago}</span>
+      </div>
+      <div class="nums">
+        <span class="num hot" title="Viral Score">${I('flame')}<b>${d.score}</b></span>
+        ${(d.x || 0) >= 2 ? '<span class="num x" title="是自家平均热度的多少倍">' + I('trend') + '<b>×' + d.x + '</b></span>' : ''}
+        <span class="num er" title="Engagement Rate">${I('pct')}<b>${d.er}%</b></span>
+        <span class="num" title="Likes">${I('heart')}<b>${d.likes > 0 ? fmt(d.likes) : '隐藏'}</b></span>
+        <span class="num" title="Comments">${I('msg')}<b>${fmt(d.comments)}</b></span>
+        <span class="num" title="Followers">${I('users')}<b>${fmt(d.followers)}</b></span>
+      </div>
+      <div class="cap" onclick="this.classList.toggle('open')"></div>
+      ${d.brk ? '<div class="ai" onclick="this.classList.toggle(&quot;open&quot;)"></div>' : ''}
+      ${d.my ? '<div class="mine" onclick="this.classList.toggle(&quot;open&quot;)"></div>' : ''}
+      <div class="srow"><label>状态</label><select class="status btn s${d.status}"></select>
+        <button class="abtn copy" title="复制完整文案">${I('copy')}文案</button>
+        ${tr ? '<button class="abtn mic" title="复制视频口播逐字稿">' + I('mic') + '口播</button>' : ''}
+        ${d.my ? '<button class="abtn minec" title="复制我的改写口播稿(可直接拍)">' + I('mic') + '我的稿</button>' : ''}
+        <button class="abtn brief" title="复制拍摄 Brief(数据+Hook+AI拆解+我的稿+口播稿+文案)">${I('clip')}Brief</button>
+        <a class="abtn" href="${d.url}" target="_blank" title="打开 Instagram 原帖">${I('ext')}</a></div>
+    </div>`;
+  const capEl = el.querySelector('.cap');
+  const restTxt = lines.slice(1).join('\n');
+  capEl.innerHTML = hook ? '<b>' + esc(hook) + '</b>' + (restTxt ? '<br>' + esc(restTxt).replace(/\n/g, '<br>') : '') : '';
+  const aiEl = el.querySelector('.ai');
+  if (aiEl) aiEl.innerHTML = '<b>💡 AI 拆解</b><br>' + esc(d.brk).split(String.fromCharCode(10)).join('<br>');
+  const myEl = el.querySelector('.mine');
+  if (myEl) myEl.innerHTML = '<b>🎬 我的版本(可直接拍)</b><br>' + esc(d.my).split(String.fromCharCode(10)).join('<br>');
+  const sel = el.querySelector('.status');
+  STATUSES.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
+  sel.value = d.status;
+  sel.onchange = () => setStatus(d, sel.value);
+  el.querySelector('.copy').onclick = () =>
+    navigator.clipboard.writeText(d.caption || '').then(() => toast('✓ 文案已复制', true));
+  const micBtn = el.querySelector('.mic');
+  if (micBtn) micBtn.onclick = () =>
+    navigator.clipboard.writeText(tr).then(() => toast('✓ 口播稿已复制', true));
+  const mineBtn = el.querySelector('.minec');
+  if (mineBtn) mineBtn.onclick = () =>
+    navigator.clipboard.writeText(d.my).then(() => toast('✓ 我的改写稿已复制', true));
+  el.querySelector('.brief').onclick = () => {
+    const NL = String.fromCharCode(10);
+    const parts = ['🎬 爆款参考 @' + d.competitor + ((d.x || 0) >= 2 ? '(自家平均 ×' + d.x + ')' : ''),
+      '📊 🔥' + d.score + ' | ER ' + d.er + '% | ❤️ ' + (d.likes > 0 ? fmt(d.likes) : '隐藏') +
+      ' | 💬 ' + fmt(d.comments) + ' | 👥 ' + fmt(d.followers) + (ago ? ' | ' + ago : ''),
+      '🔗 ' + d.url, '✍️ Hook: ' + hook];
+    if (d.brk) parts.push('——— AI 拆解 ———', d.brk);
+    if (d.my) parts.push('——— 我的版本(可直接拍)———', d.my);
+    if (tr) parts.push('——— 竞对原口播稿 ———', tr);
+    parts.push('——— 完整文案 ———', d.caption || '');
+    navigator.clipboard.writeText(parts.join(NL)).then(() => toast('✓ Brief 已复制,可直接发给拍摄/剪辑', true));
+  };
+  io.observe(el.querySelector('.embed'));
+  return el;
+}
+
+function render() {
+  renderTabs();
+  const arr = filtered();
+  const grid = $('grid'); grid.innerHTML = '';
+  arr.slice(0, shown).forEach((d, i) => grid.appendChild(card(d, i)));
+  $('empty').style.display = arr.length ? 'none' : '';
+  $('moreWrap').style.display = arr.length > shown ? '' : 'none';
+}
+
+
+function applyStatusCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem('st_cache') || '{}');
+    Object.keys(c).forEach(rid => { const d = byRec[rid]; if (d) d.status = c[rid]; });
+  } catch (e) {}
+}
+
+function cacheStatus(rid, val) {
+  try {
+    const c = JSON.parse(localStorage.getItem('st_cache') || '{}');
+    c[rid] = val; localStorage.setItem('st_cache', JSON.stringify(c));
+  } catch (e) {}
+}
+
+// live status refresh (so weekly-baked page shows current statuses)
+async function refreshStatuses() {
+  applyStatusCache(); render();  // last-known statuses first
+  if (Date.now() - (+localStorage.getItem('st_ts') || 0) < 600000) return;  // 10-min throttle
+  localStorage.setItem('st_ts', String(Date.now()));
+  const fresh = {};
+  try {
+    const r = await fetch(SUPA + '/rest/v1/posts?select=post_id,status', { headers: { 'apikey': ANON } });
+    if (!r.ok) return;
+    (await r.json()).forEach(row => {
+      const d = byRec[row.post_id];
+      if (d) d.status = row.status || '未处理';
+      if (row.status && row.status !== '未处理') fresh[row.post_id] = row.status;
+    });
+    localStorage.setItem('st_cache', JSON.stringify(fresh));
+    render();
+  } catch (e) {}
+}
+
+['fTracker','fComp','fSort'].forEach(id => $(id).onchange = () => { shown = PAGE; render(); });
+$('fSearch').oninput = () => { shown = PAGE; render(); };
+$('fVideo').onclick = () => { videoOnly = !videoOnly; $('fVideo').classList.toggle('on', videoOnly); shown = PAGE; render(); };
+$('moreBtn').onclick = () => { shown += PAGE; render(); };
+
+// preset quick filters
+$('presets').innerHTML = '<span class="lbl">快筛</span>';
+PRESETS.forEach(p => {
+  const c = document.createElement('span'); c.className = 'chip2';
+  c.innerHTML = I(p.icon) + esc(p.label);
+  c.onclick = () => { presetOn[p.k] = !presetOn[p.k]; c.classList.toggle('on', presetOn[p.k]); shown = PAGE; render(); };
+  $('presets').appendChild(c);
+});
+
+// trending hashtags among outlier posts
+if (TRENDS.length) {
+  $('trends').innerHTML = '<span class="lbl">爆款热词</span>';
+  TRENDS.forEach(([tag, n]) => {
+    const c = document.createElement('span'); c.className = 'chip2';
+    c.textContent = '#' + tag + ' ' + n;
+    c.onclick = () => { $('fSearch').value = $('fSearch').value === tag ? '' : tag; shown = PAGE; render(); };
+    $('trends').appendChild(c);
+  });
+} else { $('trends').style.display = 'none'; }
+
+render();
+refreshStatuses();
+</script>
+</body>
+</html>
