@@ -35,6 +35,7 @@ Env (tuning, all optional -- set as GitHub Actions *Variables*):
 
 import json
 import os
+import re
 import statistics
 import sys
 import time
@@ -116,11 +117,34 @@ def sb(path, method="GET", data=None, prefer=None):
 # ---------------------------------------------------------------------------
 
 
+def fb_slug(name):
+    """facebook.com/<page>/ , facebook.com/profile.php?id=123 or a bare page
+    name -> a lowercase handle. Returns "" for links that are not a page."""
+    n = (name or "").strip()
+    if "facebook.com" in n or "fb.com" in n:
+        u = urllib.parse.urlparse(n if "//" in n else "https://" + n)
+        if u.path.strip("/") == "profile.php":
+            return (urllib.parse.parse_qs(u.query).get("id") or [""])[0]
+        parts = [p for p in u.path.split("/") if p]
+        if not parts or parts[0] in ("watch", "groups", "share", "story.php", "permalink.php",
+                                     "photo", "photo.php", "reel", "reels", "videos", "events", "people"):
+            return ""
+        return parts[0].lower()
+    return n.lstrip("@").strip().lower()
+
+
 def fetch_competitors():
     rows = sb(f"competitors?select=username&tracker=eq.{TRACKER}&active=is.true")
     names = []
     for r in rows:
         n = (r.get("username") or "").strip()
+        if TRACKER == "FB":
+            slug = fb_slug(n)
+            if not slug:
+                print(f"  WARNING: skipping non-page link: {n[:60]}")
+                continue
+            names.append(slug)
+            continue
         if "instagram.com" in n:
             parts = [p for p in urllib.parse.urlparse(n).path.split("/") if p]
             if not parts or parts[0] in ("p", "reel", "reels", "stories", "tv"):
@@ -218,40 +242,106 @@ def post_type(p):
                  "Video" if p.get("isVideo") else "Image")
 
 
-def to_rows(posts, followers_map, today):
+def ig_adapt(p):
+    """Apify instagram-post-scraper item -> common shape (None = unusable)."""
+    if p.get("error") or not p.get("shortCode"):
+        return None
+    pt = post_type(p)
+    tags = p.get("hashtags") or []
+    return {
+        "id": p["shortCode"],
+        "owner": (p.get("ownerUsername") or (p.get("owner") or {}).get("username") or "").lower().strip(),
+        "caption": p.get("caption") or "",
+        "type": pt,
+        "likes": int(p.get("likesCount") or p.get("likes") or 0),
+        "comments": int(p.get("commentsCount") or p.get("comments") or 0),
+        "date": parse_date(p.get("timestamp")),
+        "url": f"https://www.instagram.com/p/{p['shortCode']}/",
+        "thumb": p.get("displayUrl") or p.get("imageUrl") or None,
+        "video": p.get("videoUrl") or None,
+        "tags": ", ".join(tags) if isinstance(tags, list) else str(tags),
+        "is_video": bool(p.get("isVideo") or pt in ("Video", "Reel")),
+    }
+
+
+def fb_adapt(p):
+    """Apify facebook-posts-scraper item -> common shape (None = unusable).
+    Field names vary a little between actor versions, so every lookup has
+    fallbacks."""
+    pid = str(p.get("postId") or "").strip()
+    url = p.get("url") or p.get("postUrl") or p.get("topLevelUrl") or ""
+    if p.get("error") or not (pid or url):
+        return None
+    if not pid:
+        pid = re.sub(r"\W+", "_", url.rstrip("/").split("facebook.com/")[-1])[:80]
+    media = p.get("media") or []
+    media = media if isinstance(media, list) else []
+    m0 = media[0] if media and isinstance(media[0], dict) else {}
+    video = (m0.get("videoUrl") or m0.get("video_url") or m0.get("playable_url")
+             or p.get("videoUrl") or None)
+    is_video = bool(video or "/videos/" in url or "/reel/" in url or
+                    str(m0.get("__typename") or "").lower() == "video")
+    thumb = (m0.get("thumbnail") or (m0.get("photo_image") or {}).get("uri")
+             or (m0.get("image") or {}).get("uri") or p.get("thumbnail") or None)
+    text = p.get("text") or p.get("message") or ""
+    owner = ""
+    for k in ("facebookUrl", "inputUrl", "pageUrl"):
+        if p.get(k):
+            owner = fb_slug(str(p[k]))
+            if owner:
+                break
+    if not owner:
+        owner = str(p.get("pageName") or (p.get("user") or {}).get("name") or "").lower().strip()
+    return {
+        "id": "fb_" + pid,
+        "owner": owner,
+        "caption": text,
+        "type": "Video" if is_video else ("Carousel" if len(media) > 1 else "Image"),
+        "likes": int(p.get("likes") or p.get("reactionsCount") or 0),
+        "comments": int(p.get("comments") or p.get("commentsCount") or 0),
+        "date": parse_date(p.get("time") or p.get("timestamp")),
+        "url": url or f"https://www.facebook.com/{pid}",
+        "thumb": thumb,
+        "video": video,
+        "tags": ", ".join(re.findall(r"#(\w+)", text)),
+        "is_video": is_video,
+    }
+
+
+def to_rows(posts, followers_map, today, adapt=ig_adapt):
     """Group the scrape by account, judge each account against ITSELF, and
     guarantee every account contributes its best few posts."""
     by_comp, nofol, broken = {}, 0, 0
-    for p in posts:
-        if p.get("error") or not p.get("shortCode"):
+    only_one = list(followers_map)[0] if len(followers_map) == 1 else None
+    for raw in posts:
+        p = adapt(raw)
+        if not p:
             broken += 1
             continue
-        u = (p.get("ownerUsername") or (p.get("owner") or {}).get("username") or "")
-        u = u.lower().strip()
+        u = p["owner"]
+        if only_one and u not in followers_map:
+            u = only_one  # single tracked page: every post is theirs
         fol = followers_map.get(u, 0)
         if not fol:
             nofol += 1
             continue
-        likes = int(p.get("likesCount") or p.get("likes") or 0)
-        comments = int(p.get("commentsCount") or p.get("comments") or 0)
-        pt = post_type(p)
-        tags = p.get("hashtags") or []
+        likes, comments = p["likes"], p["comments"]
         by_comp.setdefault(u, []).append({
             "row": {
-                "post_id": p["shortCode"],
+                "post_id": p["id"],
                 "tracker": TRACKER,
                 "competitor": u,
-                "caption": (p.get("caption") or "")[:5000],
-                "post_type": pt,
+                "caption": p["caption"][:5000],
+                "post_type": p["type"],
                 "likes": likes,
                 "comments": comments,
                 "followers": fol,
-                "post_date": parse_date(p.get("timestamp")),
-                "post_url": f"https://www.instagram.com/p/{p['shortCode']}/",
-                "thumbnail_url": p.get("displayUrl") or p.get("imageUrl") or None,
-                "video_url": p.get("videoUrl") or None,
-                "hashtags": ", ".join(tags) if isinstance(tags, list) else str(tags),
-                "is_video": bool(p.get("isVideo") or pt in ("Video", "Reel")),
+                "post_date": p["date"],
+                "post_url": p["url"],
+                "thumbnail_url": p["thumb"],
+                "video_url": p["video"],
+                "hashtags": p["tags"],
+                "is_video": p["is_video"],
                 "last_synced": today,
             },
             "eng": likes + comments,
@@ -355,29 +445,53 @@ def main():
           f"engagements>={OUTLIER_X}x own median | floor {MIN_ENGAGE} | "
           f"keep {TOP_N_PER_COMP}-{MAX_PER_COMP} per account")
 
-    profiles = run_actor(token, "apify~instagram-profile-scraper",
-                         {"usernames": names}, "Step 1 profiles")
-    followers = {}
-    for pr in profiles:
-        u = (pr.get("username") or "").lower().strip()
-        c = pr.get("followersCount") or pr.get("followers") or 0
-        if u and c:
-            followers[u] = int(c)
-    print(f"  followers for {len(followers)}/{len(names)}")
+    adapt = ig_adapt
+    if TRACKER == "FB":
+        adapt = fb_adapt
+        urls = [{"url": f"https://www.facebook.com/{n}"} for n in names]
+        profiles = run_actor(token, "apify~facebook-pages-scraper",
+                             {"startUrls": urls}, "Step 1 pages")
+        followers = {}
+        for pr in profiles:
+            u = ""
+            for k in ("pageUrl", "facebookUrl", "inputUrl", "url"):
+                if pr.get(k):
+                    u = fb_slug(str(pr[k]))
+                    if u:
+                        break
+            c = pr.get("followers") or pr.get("followersCount") or pr.get("likes") or 0
+            if u and c:
+                followers[u] = int(c)
+        print(f"  followers for {len(followers)}/{len(names)}")
+        posts = run_actor(token, "apify~facebook-posts-scraper",
+                          {"startUrls": urls, "resultsLimit": RESULTS_LIMIT,
+                           "onlyPostsNewerThan": f"{DAYS_BACK} days"}, "Step 2 posts")
+        print(f"  scraped {len(posts)} posts (last {DAYS_BACK} days, "
+              f"<= {RESULTS_LIMIT}/page)")
+    else:
+        profiles = run_actor(token, "apify~instagram-profile-scraper",
+                             {"usernames": names}, "Step 1 profiles")
+        followers = {}
+        for pr in profiles:
+            u = (pr.get("username") or "").lower().strip()
+            c = pr.get("followersCount") or pr.get("followers") or 0
+            if u and c:
+                followers[u] = int(c)
+        print(f"  followers for {len(followers)}/{len(names)}")
 
-    try:
-        suggest_competitors(profiles)
-    except Exception as exc:
-        print(f"[Suggest] skipped ({exc})")
+        try:
+            suggest_competitors(profiles)
+        except Exception as exc:
+            print(f"[Suggest] skipped ({exc})")
 
-    posts = run_actor(token, "apify~instagram-post-scraper",
-                      {"username": names, "resultsLimit": RESULTS_LIMIT,
-                       "onlyPostsNewerThan": f"{DAYS_BACK} days"}, "Step 2 posts")
-    print(f"  scraped {len(posts)} posts (last {DAYS_BACK} days, "
-          f"<= {RESULTS_LIMIT}/account)")
+        posts = run_actor(token, "apify~instagram-post-scraper",
+                          {"username": names, "resultsLimit": RESULTS_LIMIT,
+                           "onlyPostsNewerThan": f"{DAYS_BACK} days"}, "Step 2 posts")
+        print(f"  scraped {len(posts)} posts (last {DAYS_BACK} days, "
+              f"<= {RESULTS_LIMIT}/account)")
 
     today = datetime.now(timezone.utc).date().isoformat()
-    rows = to_rows(posts, followers, today)
+    rows = to_rows(posts, followers, today, adapt)
     if rows:
         for i in range(0, len(rows), 100):
             sb("posts?on_conflict=post_id", method="POST", data=rows[i:i+100],

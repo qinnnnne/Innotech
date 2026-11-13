@@ -27,7 +27,7 @@ SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")  # public key, baked
 # Falls back to sensible defaults so the page still builds before they're set.
 BRAND = os.environ.get("BRAND") or "爆款雷达"
 SYNC_DAY = os.environ.get("SYNC_DAY") or "每周"
-TRACKER_LABEL = {"IG": BRAND + " 竞对"}
+TRACKER_LABEL = {"IG": BRAND + " 竞对", "FB": BRAND + " FB 竞对"}
 STATUSES = ["未处理", "拍摄中", "已处理", "跳过"]
 
 # comment-bait CTA patterns — require an explicit gated keyword:
@@ -67,6 +67,12 @@ def _handle(name):
     """Normalise a competitor handle the way sync_content.py does, so the two
     scripts always agree on what '@Nike' and 'instagram.com/nike/' mean."""
     n = (name or "").strip()
+    if "facebook.com" in n or "fb.com" in n:
+        u = urllib.parse.urlparse(n if "//" in n else "https://" + n)
+        if u.path.strip("/") == "profile.php":
+            return (urllib.parse.parse_qs(u.query).get("id") or [""])[0]
+        parts = [p for p in u.path.split("/") if p]
+        return parts[0].lower() if parts else ""
     if "instagram.com" in n:
         parts = [p for p in urllib.parse.urlparse(n).path.split("/") if p]
         if not parts or parts[0] in ("p", "reel", "reels", "stories", "tv"):
@@ -123,7 +129,9 @@ def normalize(r):
         "er": round(float(er) * 100, 2),
         "followers": r.get("followers") or 0,
         "date": r.get("post_date") or "",
-        "url": r.get("post_url") or f"https://www.instagram.com/p/{post_id}/",
+        "plat": "FB" if r.get("tracker") == "FB" else "IG",
+        "url": r.get("post_url") or (f"https://www.facebook.com/{post_id[3:]}" if r.get("tracker") == "FB"
+                                     else f"https://www.instagram.com/p/{post_id}/"),
         "video": bool(r.get("is_video")) or (r.get("post_type") in ("Video", "Reel")) or bool(r.get("video_url")),
         "ratio": 0,
         "score": float(r.get("viral_score") or 0),
@@ -250,6 +258,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
   .embed { position: relative; width: 100%; aspect-ratio: 4/5; background: #080b10; }
+  .embed.fb { aspect-ratio: 1/1.25; background: #fff; }
   .embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
   .embed .ph { position: absolute; inset: 0; display: grid; place-items: center;
     background: linear-gradient(110deg, #0b0e15 8%, #121826 18%, #0b0e15 33%);
@@ -485,7 +494,10 @@ const io = new IntersectionObserver(entries => {
       const el = e.target, pid = el.dataset.pid;
       if (!el.querySelector('iframe')) {
         const f = document.createElement('iframe');
-        f.src = 'https://www.instagram.com/p/' + pid + '/embed/';
+        const rec = byRec[pid];
+        f.src = (rec && rec.plat === 'FB')
+          ? 'https://www.facebook.com/plugins/post.php?show_text=true&width=500&href=' + encodeURIComponent(rec.url)
+          : 'https://www.instagram.com/p/' + pid + '/embed/';
         f.loading = 'lazy'; f.allow = 'autoplay; encrypted-media';
         el.appendChild(f);
       }
@@ -534,11 +546,11 @@ function card(d, idx) {
   const hook = lines[0] || '';
   const tr = (d.transcript && d.transcript !== '(转录失败)' && d.transcript !== '(无口播内容)') ? d.transcript : '';
   el.innerHTML = `
-    <div class="embed" data-pid="${d.id}"><div class="ph"><svg class="ic"><use href="#i-${typeIcon}"/></svg></div></div>
+    <div class="embed${d.plat === 'FB' ? ' fb' : ''}" data-pid="${d.id}"><div class="ph"><svg class="ic"><use href="#i-${typeIcon}"/></svg></div></div>
     <div class="meta">
       <div class="row1">
         <span class="handle" title="拖到上方 tab 即可归类">${I('grip')}</span>
-        <a class="who" href="https://www.instagram.com/${d.competitor}/" target="_blank">@${d.competitor}</a>
+        <a class="who" href="${d.plat === 'FB' ? 'https://www.facebook.com/' : 'https://www.instagram.com/'}${d.competitor}/" target="_blank">${d.plat === 'FB' ? 'FB ' : ''}@${d.competitor}</a>
         <span class="badge">${d.type || '-'}</span>
         ${days !== null && days <= 7 ? '<span class="badge bnew">' + I('star') + '新帖</span>' : ''}
         ${horse ? '<span class="badge bhorse">' + I('zap') + '黑马</span>' : ''}
@@ -561,7 +573,7 @@ function card(d, idx) {
         ${tr ? '<button class="abtn mic" title="复制视频口播逐字稿">' + I('mic') + '口播</button>' : ''}
         ${d.my ? '<button class="abtn minec" title="复制我的改写口播稿(可直接拍)">' + I('mic') + '我的稿</button>' : ''}
         <button class="abtn brief" title="复制拍摄 Brief(数据+Hook+AI拆解+我的稿+口播稿+文案)">${I('clip')}Brief</button>
-        <a class="abtn" href="${d.url}" target="_blank" title="打开 Instagram 原帖">${I('ext')}</a></div>
+        <a class="abtn" href="${d.url}" target="_blank" title="打开${d.plat === 'FB' ? ' Facebook' : ' Instagram'} 原帖">${I('ext')}</a></div>
     </div>`;
   const capEl = el.querySelector('.cap');
   const restTxt = lines.slice(1).join('\\n');
@@ -1054,7 +1066,7 @@ function renderWork() {
   if (!shoot.length) sl.innerHTML = '<div class="none">队列是空的 — Marketer 去爆款雷达挑几条拖进「拍摄中」</div>';
   shoot.forEach(d => {
     const r = document.createElement('div'); r.className = 'row';
-    r.innerHTML = '<a class="who2" href="https://www.instagram.com/' + d.competitor + '/" target="_blank">@' + esc(d.competitor) + '</a>'
+    r.innerHTML = '<a class="who2" href="' + (d.plat === 'FB' ? 'https://www.facebook.com/' : 'https://www.instagram.com/') + d.competitor + '/" target="_blank">' + (d.plat === 'FB' ? 'FB ' : '') + '@' + esc(d.competitor) + '</a>'
       + ((d.x || 0) >= 2 ? '<span class="xb">×' + d.x + '</span>' : '')
       + '<span class="hookline">' + esc(firstLine(d.caption)) + '</span>'
       + '<a class="pill" href="' + d.url + '" target="_blank">' + I('ext') + '原帖</a>'
@@ -1072,7 +1084,7 @@ function renderWork() {
   picks.forEach(d => {
     const r = document.createElement('div'); r.className = 'row';
     r.innerHTML = '<span class="xb">×' + d.x + '</span>'
-      + '<a class="who2" href="https://www.instagram.com/' + d.competitor + '/" target="_blank">@' + esc(d.competitor) + '</a>'
+      + '<a class="who2" href="' + (d.plat === 'FB' ? 'https://www.facebook.com/' : 'https://www.instagram.com/') + d.competitor + '/" target="_blank">' + (d.plat === 'FB' ? 'FB ' : '') + '@' + esc(d.competitor) + '</a>'
       + '<span class="hookline">' + esc(firstLine(d.caption))
       + '<small>🔥' + d.score + ' · ER ' + d.er + '% · 💬' + fmt(d.comments) + '</small></span>'
       + '<a class="pill" href="' + d.url + '" target="_blank">' + I('ext') + '原帖</a>'

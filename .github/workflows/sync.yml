@@ -21,3 +21,12 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: python sync_content.py
+      - name: Sync Facebook pages
+        # 没加任何 FB 竞对时这一步会直接跳过;FB 抓取出问题也不影响 IG 后面的转录/拆解
+        continue-on-error: true
+        env:
+          TRACKER: FB
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python sync_content.py
